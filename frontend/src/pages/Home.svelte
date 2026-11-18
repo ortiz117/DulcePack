@@ -9,6 +9,8 @@
   import heroImage from '../assets/fiesta-hero.webp';
   import type { CategoryId, Product } from '../types/product';
 
+  let { navigate }: { navigate: (path: string) => void } = $props();
+
   // Estado efímero de esta vista. No crea pedidos ni persiste un carrito real.
   let categoryFilter = $state<CategoryId | ''>('');
   let query = $state('');
@@ -42,7 +44,7 @@
 
 <a class="skip-link" href="#contenido">Saltar al contenido</a>
 <div id="inicio"></div>
-<Header {cartCount} onpending={showPending} onsearch={toggleSearch} {searchOpen} />
+<Header {cartCount} onpending={showPending} oncatalog={() => navigate('/catalogo')} onsearch={toggleSearch} {searchOpen} />
 <main id="contenido" class="container" tabindex="-1">
   <div id="home-search" class="home-search" hidden={!searchOpen}>
     <label for="favorite-search">Buscar entre favoritos</label>
@@ -54,7 +56,7 @@
       <span class="eyebrow"><span class="desktop-text">¡Sabor de la semana!</span><span class="mobile-text">Nuevo</span></span>
       <h1 id="hero-title">Antojos para<br />cada momento</h1>
       <p>Descubre combinaciones de dulces y snacks para compartir, regalar o disfrutar cuando quieras.</p>
-      <Button variant="pink" onclick={() => showPending('Catálogo')}><span class="desktop-text">Explorar catálogo</span><span class="mobile-text">Ver catálogo</span></Button>
+      <Button variant="pink" onclick={() => navigate('/catalogo')}><span class="desktop-text">Explorar catálogo</span><span class="mobile-text">Ver catálogo</span></Button>
     </div>
     <img class="hero-image" src={heroImage} alt="Paquete Fiesta morado rodeado de confeti rosa y amarillo" width="590" height="334" fetchpriority="high" />
   </section>
@@ -71,7 +73,7 @@
   <section class="favorites" id="favoritos" aria-labelledby="favorites-title">
     <div class="section-heading"><h2 id="favorites-title"><span class="desktop-text">Los favoritos de la semana</span><span class="mobile-text">Favoritos</span></h2></div>
     {#if categoryFilter || query}<div class="filter-summary"><span>Favoritos encontrados: {filteredProducts.length}</span><button type="button" onclick={resetFilters}>Mostrar todos los favoritos</button></div>{/if}
-    <div class="product-grid">{#each filteredProducts as product (product.id)}<ProductCard {product} onadd={addDemoProduct} />{:else}<p class="empty-state">No encontramos favoritos con esos filtros.</p>{/each}</div>
+    <div class="product-grid">{#each filteredProducts as product (product.id)}<ProductCard {product} onadd={addDemoProduct} mobilePriority />{:else}<p class="empty-state">No encontramos favoritos con esos filtros.</p>{/each}</div>
   </section>
 
   <aside class="benefits" aria-label="Beneficios previstos de la tienda, sujetos a implementación">

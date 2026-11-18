@@ -39,12 +39,11 @@ test('las categorías filtran los favoritos sin abrir una segunda vista', async 
   expect(new URL(page.url()).pathname).toBe('/');
 });
 
-test('las vistas pendientes informan sin navegar y permiten cerrar el aviso', async ({ page, isMobile }) => {
+test('catálogo navega y las demás vistas pendientes conservan sus avisos', async ({ page, isMobile }) => {
   await page.goto('/');
   await page.getByRole('button', { name: isMobile ? 'Ver catálogo' : 'Explorar catálogo', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Catálogo: disponible en una próxima vista');
-  await page.getByRole('button', { name: 'Cerrar aviso' }).click();
-  await expect(page.getByRole('status')).toBeEmpty();
+  await expect(page).toHaveURL(/\/catalogo$/);
+  await page.goBack();
   await page.getByRole('button', { name: 'Carrito de demostración: 0 productos', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Carrito: disponible en una próxima vista');
   await page.getByRole('button', { name: 'Cerrar aviso' }).click();

@@ -8,6 +8,8 @@ export interface Product {
   price: number;
   currency: 'MXN';
   category: CategoryId;
+  kind?: 'dulces' | 'botanas' | 'paquetes';
+  flavor?: 'dulce' | 'acido' | 'picante';
   image: string;
 }
 
