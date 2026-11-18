@@ -1,0 +1,30 @@
+ :root {
+  font-family: 'Nunito Variable', sans-serif;
+  color: #24123a;
+  background: #fff9fc;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --purple: #6d28d9;
+  --pink: #ec4899;
+  --yellow: #fbbf24;
+  --ink: #24123a;
+  --muted: #705c82;
+  --lavender: #f7f2ff;
+  --shadow: 0 8px 24px #24123a0c;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 3px solid #9d35c3; outline-offset: 5px; }
+main:focus { outline: none; }
+.container { width: min(1296px, calc(100% - 64px)); margin-left: auto; margin-right: auto; }
+.skip-link { position: absolute; left: 16px; top: -100px; padding: 12px 20px; background: white; color: var(--purple); z-index: 10; border-radius: 10px; }
+.skip-link:focus { top: 12px; }
+section[id] { scroll-margin-top: 24px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+@media (max-width: 600px) { .container { width: calc(100% - 32px); } }

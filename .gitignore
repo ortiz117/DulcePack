@@ -1,0 +1,9 @@
+frontend/node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+frontend/design-review/*.jpg
+frontend/design-review/screenshots/
+.env
+.env.*
+!.env.example
