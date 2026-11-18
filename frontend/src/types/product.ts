@@ -18,3 +18,8 @@ export interface Category {
   name: string;
   shortName: string;
 }
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+}

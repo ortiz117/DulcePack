@@ -5,20 +5,20 @@
   import { catalogProducts } from '../data/home';
   import type { Product } from '../types/product';
 
-  let { productId, navigate }: { productId: string; navigate: (path: string) => void } = $props();
+  let { productId, navigate, cartCount, addToCart }: { productId: string; navigate: (path: string) => void; cartCount: number; addToCart: (product: Product, quantity?: number) => void } = $props();
   let product = $derived(catalogProducts.find(item => item.id === productId) ?? catalogProducts[0]);
   let quantity = $state(1);
-  let cartCount = $state(0);
+
   let notice = $state('');
   let related = $derived(catalogProducts.filter(item => item.id !== product.id).slice(0, 3));
 
   function addSelected() {
-    cartCount += quantity;
+    addToCart(product, quantity);
     notice = `${quantity} ${product.name} agregados al carrito de demostración.`;
   }
 
   function addRelated(item: Product) {
-    cartCount += 1;
+    addToCart(item);
     notice = `${item.name} agregado al carrito de demostración.`;
   }
 </script>
@@ -28,6 +28,7 @@
   {cartCount}
   active="catalogo"
   oncatalog={() => navigate('/catalogo')}
+  oncart={() => navigate('/carrito')}
   onpending={(view) => notice = `${view}: disponible próximamente.`}
   onsearch={() => navigate('/catalogo')}
   searchOpen={false}

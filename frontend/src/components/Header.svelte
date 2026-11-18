@@ -1,9 +1,10 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
-  let { cartCount = 0, onpending, oncatalog, onsearch, searchOpen, active = 'inicio', searchControls = 'home-search' }: {
+  let { cartCount = 0, onpending, oncatalog, oncart, onsearch, searchOpen, active = 'inicio', searchControls = 'home-search' }: {
     cartCount?: number;
     onpending: (view: string) => void;
     oncatalog?: () => void;
+    oncart?: () => void;
     onsearch: () => void;
     searchOpen: boolean;
     active?: 'inicio' | 'catalogo';
@@ -21,7 +22,7 @@
   <div class="header-actions">
     <button id="search-trigger" class="search" type="button" aria-label="Buscar antojos" aria-expanded={searchOpen} aria-controls={searchControls} onclick={onsearch}><Icon name="search" /><span>Buscar antojos</span></button>
     <button class="account" type="button" onclick={() => onpending('Mi cuenta')}><span>Mi cuenta</span><Icon name="user" /></button>
-    <button class="cart" type="button" onclick={() => onpending('Carrito')} aria-label={`Carrito de demostración: ${cartCount} ${cartCount === 1 ? 'producto' : 'productos'}`}><Icon name="cart" /><span class="cart-count">{cartCount}</span></button>
+    <button class="cart" type="button" onclick={() => oncart ? oncart() : onpending('Carrito')} aria-label={`Carrito de demostración: ${cartCount} ${cartCount === 1 ? 'producto' : 'productos'}`}><Icon name="cart" /><span class="cart-count">{cartCount}</span></button>
   </div>
 </header>
 

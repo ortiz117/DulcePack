@@ -6,8 +6,7 @@
   import { catalogProducts } from '../data/home';
   import type { Product } from '../types/product';
 
-  let { navigate }: { navigate: (path: string) => void } = $props();
-  let cartCount = $state(0);
+  let { navigate, cartCount, addToCart }: { navigate: (path: string) => void; cartCount: number; addToCart: (product: Product, quantity?: number) => void } = $props();
   let notice = $state('');
   let kinds = $state<string[]>([]);
   let flavors = $state<string[]>([]);
@@ -50,7 +49,7 @@
   }
 
   function addProduct(product: Product) {
-    cartCount += 1;
+    addToCart(product);
     notice = `${product.name} agregado al carrito de demostración.`;
   }
 
@@ -64,6 +63,7 @@
   {cartCount}
   active="catalogo"
   oncatalog={() => navigate('/catalogo')}
+  oncart={() => navigate('/carrito')}
   onpending={(view) => notice = `${view}: disponible próximamente.`}
   onsearch={toggleSearch}
   {searchOpen}

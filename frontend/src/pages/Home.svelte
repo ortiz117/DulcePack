@@ -9,7 +9,7 @@
   import heroImage from '../assets/fiesta-hero.webp';
   import type { CategoryId, Product } from '../types/product';
 
-  let { navigate }: { navigate: (path: string) => void } = $props();
+  let { navigate, cartCount, addToCart }: { navigate: (path: string) => void; cartCount: number; addToCart: (product: Product, quantity?: number) => void } = $props();
 
   // Estado efímero de esta vista. No crea pedidos ni persiste un carrito real.
   let categoryFilter = $state<CategoryId | ''>('');
@@ -31,20 +31,19 @@
     categoryFilter = '';
     query = '';
   }
-  let cartCount = $state(0);
   let notice = $state('');
   function showPending(view: string) {
     notice = `${view}: disponible en una próxima vista. Esta demostración solo incluye Inicio.`;
   }
   function addDemoProduct(product: Product) {
-    cartCount += 1;
+    addToCart(product);
     notice = `Simulación: ${product.name} agregado. Productos en el contador: ${cartCount}. No se ha realizado ninguna compra.`;
   }
 </script>
 
 <a class="skip-link" href="#contenido">Saltar al contenido</a>
 <div id="inicio"></div>
-<Header {cartCount} onpending={showPending} oncatalog={() => navigate('/catalogo')} onsearch={toggleSearch} {searchOpen} />
+<Header {cartCount} onpending={showPending} oncatalog={() => navigate('/catalogo')} oncart={() => navigate('/carrito')} onsearch={toggleSearch} {searchOpen} />
 <main id="contenido" class="container" tabindex="-1">
   <div id="home-search" class="home-search" hidden={!searchOpen}>
     <label for="favorite-search">Buscar entre favoritos</label>
