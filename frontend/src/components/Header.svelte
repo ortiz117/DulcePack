@@ -10,6 +10,12 @@
     active?: 'inicio' | 'catalogo';
     searchControls?: string;
   } = $props();
+  const accountName = sessionStorage.getItem('dulcepack-user-name');
+
+  function openAccount() {
+    history.pushState({}, '', '/iniciar-sesion');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }
 </script>
 
 <header class="site-header container">
@@ -21,7 +27,7 @@
   </nav>
   <div class="header-actions">
     <button id="search-trigger" class="search" type="button" aria-label="Buscar antojos" aria-expanded={searchOpen} aria-controls={searchControls} onclick={onsearch}><Icon name="search" /><span>Buscar antojos</span></button>
-    <button class="account" type="button" onclick={() => onpending('Mi cuenta')}><span>Mi cuenta</span><Icon name="user" /></button>
+    <button class="account" type="button" aria-label={accountName ? `Cuenta de ${accountName}` : 'Mi cuenta'} onclick={openAccount}><span>{accountName ?? 'Mi cuenta'}</span><Icon name="user" /></button>
     <button class="cart" type="button" onclick={() => oncart ? oncart() : onpending('Carrito')} aria-label={`Carrito de demostración: ${cartCount} ${cartCount === 1 ? 'producto' : 'productos'}`}><Icon name="cart" /><span class="cart-count">{cartCount}</span></button>
   </div>
 </header>
@@ -40,7 +46,7 @@
   .cart { display: flex; align-items: center; gap: 8px; color: var(--purple); }
   .cart-count { display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 5px; border-radius: 50px; background: var(--yellow); color: var(--ink); font-weight: 700; font-size: 12px; }
   @media (max-width: 1050px) { .search { min-width: auto; background: transparent; padding: 8px; } .search span { display: none; } nav { gap: 16px; } .site-header { gap: 20px; } }
-  @media (max-width: 760px) { nav { display: none; } .account { display: none; } }
+  @media (max-width: 760px) { nav { display: none; } .account span { display: none; } .account :global(svg) { display: block; } }
   @media (max-width: 600px) {
     .site-header { margin-top: 16px; margin-bottom: 20px; min-height: 64px; padding: 8px 16px; border-radius: 18px; }
     .brand { font-size: 24px; } .brand-dot { display: none; }

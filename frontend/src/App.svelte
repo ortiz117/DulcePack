@@ -5,6 +5,8 @@
   import Cart from './pages/Cart.svelte';
   import Checkout from './pages/Checkout.svelte';
   import Confirmation from './pages/Confirmation.svelte';
+  import Login from './pages/Login.svelte';
+  import Register from './pages/Register.svelte';
   import type { CartItem, Product } from './types/product';
 
   let path = $state(window.location.pathname);
@@ -35,6 +37,17 @@
     navigate('/confirmacion');
   }
 
+  function login(email: string) {
+    const name = email.split('@')[0].trim().toLocaleLowerCase('es-MX');
+    sessionStorage.setItem('dulcepack-user-name', name || 'cliente');
+    navigate('/');
+  }
+
+  function register(name: string) {
+    sessionStorage.setItem('dulcepack-user-name', name.trim().split(/\s+/)[0] || 'cliente');
+    navigate('/');
+  }
+
   function navigate(nextPath: string) {
     history.pushState({}, '', nextPath);
     path = nextPath;
@@ -44,7 +57,11 @@
   window.addEventListener('popstate', () => path = window.location.pathname);
 </script>
 
-{#if path === '/confirmacion'}
+{#if path === '/registro'}
+  <Register {navigate} {register} />
+{:else if path === '/iniciar-sesion'}
+  <Login {navigate} {login} />
+{:else if path === '/confirmacion'}
   <Confirmation {navigate} {cartCount} />
 {:else if path === '/checkout'}
   <Checkout {cart} {cartCount} {subtotal} {shipping} {discount} {orderTotal} {navigate} {completeOrder} />
