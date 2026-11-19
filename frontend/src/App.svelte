@@ -7,9 +7,15 @@
   import Confirmation from './pages/Confirmation.svelte';
   import Login from './pages/Login.svelte';
   import Register from './pages/Register.svelte';
+  import AdminLogin from './pages/AdminLogin.svelte';
+  import AdminDashboard from './pages/AdminDashboard.svelte';
   import type { CartItem, Product } from './types/product';
 
-  let path = $state(window.location.pathname);
+  const initialPath = window.location.pathname === '/admin/dashboard' && sessionStorage.getItem('dulcepack-admin-session') !== 'active'
+    ? '/admin'
+    : window.location.pathname;
+  if (initialPath !== window.location.pathname) history.replaceState({}, '', initialPath);
+  let path = $state(initialPath);
   let cart = $state<CartItem[]>([]);
   let cartCount = $derived(cart.reduce((total, item) => total + item.quantity, 0));
   let subtotal = $derived(cart.reduce((total, item) => total + item.product.price * item.quantity, 0));
@@ -49,15 +55,30 @@
   }
 
   function navigate(nextPath: string) {
-    history.pushState({}, '', nextPath);
-    path = nextPath;
+    const allowedPath = nextPath === '/admin/dashboard' && sessionStorage.getItem('dulcepack-admin-session') !== 'active'
+      ? '/admin'
+      : nextPath;
+    history.pushState({}, '', allowedPath);
+    path = allowedPath;
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
-  window.addEventListener('popstate', () => path = window.location.pathname);
+  window.addEventListener('popstate', () => {
+    const nextPath = window.location.pathname;
+    if (nextPath === '/admin/dashboard' && sessionStorage.getItem('dulcepack-admin-session') !== 'active') {
+      history.replaceState({}, '', '/admin');
+      path = '/admin';
+      return;
+    }
+    path = nextPath;
+  });
 </script>
 
-{#if path === '/registro'}
+{#if path === '/admin/dashboard'}
+  <AdminDashboard {navigate} />
+{:else if path === '/admin'}
+  <AdminLogin {navigate} />
+{:else if path === '/registro'}
   <Register {navigate} {register} />
 {:else if path === '/iniciar-sesion'}
   <Login {navigate} {login} />
