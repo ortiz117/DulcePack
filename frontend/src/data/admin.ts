@@ -28,3 +28,21 @@ export const weeklySales: WeeklySale[] = [
 ];
 
 export const adminSections = ['Resumen', 'Productos', 'Inventario', 'Pedidos', 'Usuarios'] as const;
+
+export type AdminProduct = {
+  id: string;
+  name: string;
+  category: 'Paquetes' | 'Dulces' | 'Botanas';
+  price: number;
+  stock: number;
+  status: 'Activo' | 'Bajo';
+};
+
+export const adminProducts: AdminProduct[] = [
+  { id: 'fiesta-dulce', name: 'Pack Fiesta Dulce', category: 'Paquetes', price: 189, stock: 24, status: 'Activo' },
+  { id: 'box-picosita', name: 'Box Picosita', category: 'Paquetes', price: 159, stock: 7, status: 'Bajo' },
+  { id: 'mix-gomitas', name: 'Mix Gomitas', category: 'Dulces', price: 129, stock: 38, status: 'Activo' },
+  { id: 'noche-pelis', name: 'Noche de Pelis', category: 'Botanas', price: 219, stock: 15, status: 'Activo' },
+  { id: 'pack-cumpleanos', name: 'Pack Cumpleaños', category: 'Paquetes', price: 289, stock: 4, status: 'Bajo' },
+  { id: 'choco-lovers', name: 'Choco Lovers', category: 'Dulces', price: 199, stock: 18, status: 'Activo' },
+];

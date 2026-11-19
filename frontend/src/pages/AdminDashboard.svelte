@@ -7,6 +7,10 @@
   const maxSale = Math.max(...weeklySales.map(sale => sale.value));
 
   function announce(section: string) {
+    if (section === 'Productos') {
+      navigate('/admin/productos');
+      return;
+    }
     notice = `${section} estará disponible en su módulo asignado.`;
     menuOpen = false;
   }

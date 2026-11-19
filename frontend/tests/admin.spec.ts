@@ -42,8 +42,7 @@ test('el dashboard ofrece acciones mock sin desarrollar módulos adicionales', a
   await expect(page.getByRole('heading', { name: 'Ventas semanales' })).toBeVisible();
   await expect(page.getByRole('img', { name: 'Gráfica de ventas semanales' })).toBeVisible();
   await page.getByRole('button', { name: 'Gestionar productos' }).click();
-  await expect(page.getByRole('status')).toContainText('Productos estará disponible en su módulo asignado');
-  await page.getByRole('button', { name: 'Cerrar aviso' }).click();
+  await expect(page).toHaveURL(/\/admin\/productos$/);
 
   if (isMobile) await page.getByRole('button', { name: 'Abrir menú administrativo' }).click();
   await page.getByRole('button', { name: 'Cerrar sesión' }).click();

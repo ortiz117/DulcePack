@@ -9,9 +9,11 @@
   import Register from './pages/Register.svelte';
   import AdminLogin from './pages/AdminLogin.svelte';
   import AdminDashboard from './pages/AdminDashboard.svelte';
+  import AdminProducts from './pages/AdminProducts.svelte';
   import type { CartItem, Product } from './types/product';
 
-  const initialPath = window.location.pathname === '/admin/dashboard' && sessionStorage.getItem('dulcepack-admin-session') !== 'active'
+  const isProtectedAdminPath = (value: string) => value.startsWith('/admin/');
+  const initialPath = isProtectedAdminPath(window.location.pathname) && sessionStorage.getItem('dulcepack-admin-session') !== 'active'
     ? '/admin'
     : window.location.pathname;
   if (initialPath !== window.location.pathname) history.replaceState({}, '', initialPath);
@@ -55,7 +57,7 @@
   }
 
   function navigate(nextPath: string) {
-    const allowedPath = nextPath === '/admin/dashboard' && sessionStorage.getItem('dulcepack-admin-session') !== 'active'
+    const allowedPath = isProtectedAdminPath(nextPath) && sessionStorage.getItem('dulcepack-admin-session') !== 'active'
       ? '/admin'
       : nextPath;
     history.pushState({}, '', allowedPath);
@@ -65,7 +67,7 @@
 
   window.addEventListener('popstate', () => {
     const nextPath = window.location.pathname;
-    if (nextPath === '/admin/dashboard' && sessionStorage.getItem('dulcepack-admin-session') !== 'active') {
+    if (isProtectedAdminPath(nextPath) && sessionStorage.getItem('dulcepack-admin-session') !== 'active') {
       history.replaceState({}, '', '/admin');
       path = '/admin';
       return;
@@ -74,7 +76,9 @@
   });
 </script>
 
-{#if path === '/admin/dashboard'}
+{#if path === '/admin/productos'}
+  <AdminProducts {navigate} />
+{:else if path === '/admin/dashboard'}
   <AdminDashboard {navigate} />
 {:else if path === '/admin'}
   <AdminLogin {navigate} />
