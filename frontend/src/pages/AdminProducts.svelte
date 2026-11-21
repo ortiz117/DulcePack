@@ -14,13 +14,13 @@
 
 <svelte:head><title>Productos administrativos | DulcePack</title></svelte:head>
 
-<AdminShell title="Productos" active="Resumen" {navigate}>
+<AdminShell title="Productos" active="Productos" {navigate}>
   <section class="product-actions" aria-label="Herramientas de productos">
     <label class="search-field">
       <span class="sr-only">Buscar producto</span>
       <input type="search" aria-label="Buscar producto" placeholder="Buscar producto..." bind:value={query} />
     </label>
-    <button class="new-product" type="button" onclick={() => announce('Nuevo producto se implementará en su vista asignada.')}>Nuevo producto</button>
+    <button class="new-product" type="button" onclick={() => navigate('/admin/productos/nuevo')}>Nuevo producto</button>
   </section>
 
   <section class="products-panel" aria-label="Listado de productos">

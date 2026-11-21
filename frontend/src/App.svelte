@@ -10,6 +10,7 @@
   import AdminLogin from './pages/AdminLogin.svelte';
   import AdminDashboard from './pages/AdminDashboard.svelte';
   import AdminProducts from './pages/AdminProducts.svelte';
+  import AdminNewProduct from './pages/AdminNewProduct.svelte';
   import AdminOrders from './pages/AdminOrders.svelte';
   import AdminUsers from './pages/AdminUsers.svelte';
   import type { CartItem, Product } from './types/product';
@@ -78,7 +79,9 @@
   });
 </script>
 
-{#if path === '/admin/usuarios'}
+{#if path === '/admin/productos/nuevo'}
+  <AdminNewProduct {navigate} />
+{:else if path === '/admin/usuarios'}
   <AdminUsers {navigate} />
 {:else if path === '/admin/pedidos'}
   <AdminOrders {navigate} />

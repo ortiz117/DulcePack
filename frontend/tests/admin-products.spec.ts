@@ -27,14 +27,18 @@ test('productos muestra el listado mock fiel y permite buscar por nombre', async
   await expect(table.getByText('Pack Fiesta Dulce')).toBeHidden();
 });
 
-test('nuevo producto y editar permanecen como acciones mock fuera de alcance', async ({ page }) => {
+test('nuevo producto navega a su formulario y editar permanece fuera de alcance', async ({ page, isMobile }) => {
   await enableAdminSession(page);
   await page.goto('/admin/productos');
 
+  if (isMobile) await page.getByRole('button', { name: 'Abrir menú administrativo' }).click();
+  await expect(page.getByRole('button', { name: 'Productos' })).toHaveAttribute('aria-current', 'page');
+  if (isMobile) await page.getByRole('button', { name: 'Cerrar menú administrativo', exact: true }).click();
   await page.getByRole('button', { name: 'Nuevo producto' }).click();
-  await expect(page.getByRole('status')).toContainText('Nuevo producto se implementará en su vista asignada');
-  await page.getByRole('button', { name: 'Cerrar aviso' }).click();
+  await expect(page).toHaveURL(/\/admin\/productos\/nuevo$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Nuevo producto' })).toBeVisible();
 
+  await page.goto('/admin/productos');
   await page.getByRole('button', { name: 'Editar Pack Fiesta Dulce' }).click();
   await expect(page.getByRole('status')).toContainText('La edición de Pack Fiesta Dulce estará disponible');
 });
