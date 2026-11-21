@@ -29,6 +29,34 @@ export const weeklySales: WeeklySale[] = [
 
 export const adminSections = ['Resumen', 'Productos', 'Inventario', 'Pedidos', 'Usuarios'] as const;
 
+export type InventoryMetric = {
+  label: string;
+  value: number;
+  tone: 'purple' | 'pink' | 'ink';
+};
+
+export type InventoryItem = {
+  product: string;
+  available: number;
+  minimum: number;
+  status: 'Disponible' | 'Bajo';
+  updatedAt: string;
+};
+
+export const inventoryMetrics: InventoryMetric[] = [
+  { label: 'Unidades disponibles', value: 436, tone: 'purple' },
+  { label: 'Stock bajo', value: 3, tone: 'pink' },
+  { label: 'Sin existencias', value: 1, tone: 'ink' },
+];
+
+export const inventoryItems: InventoryItem[] = [
+  { product: 'Pack Fiesta Dulce', available: 24, minimum: 10, status: 'Disponible', updatedAt: 'Hoy, 08:30' },
+  { product: 'Box Picosita', available: 7, minimum: 10, status: 'Bajo', updatedAt: 'Ayer' },
+  { product: 'Mix Gomitas', available: 38, minimum: 12, status: 'Disponible', updatedAt: 'Hoy, 07:10' },
+  { product: 'Pack Cumpleaños', available: 4, minimum: 8, status: 'Bajo', updatedAt: 'Ayer' },
+  { product: 'Choco Lovers', available: 18, minimum: 8, status: 'Disponible', updatedAt: '2 nov' },
+];
+
 export type AdminProduct = {
   id: string;
   name: string;

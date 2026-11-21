@@ -20,6 +20,7 @@
   const routes: Partial<Record<(typeof adminSections)[number], string>> = {
     Resumen: '/admin/dashboard',
     Productos: '/admin/productos',
+    Inventario: '/admin/inventario',
     Pedidos: '/admin/pedidos',
     Usuarios: '/admin/usuarios',
   };

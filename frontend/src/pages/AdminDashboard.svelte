@@ -11,6 +11,10 @@
       navigate('/admin/productos');
       return;
     }
+    if (section === 'Inventario') {
+      navigate('/admin/inventario');
+      return;
+    }
     notice = `${section} estará disponible en su módulo asignado.`;
     menuOpen = false;
   }

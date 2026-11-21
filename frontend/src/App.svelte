@@ -10,6 +10,7 @@
   import AdminLogin from './pages/AdminLogin.svelte';
   import AdminDashboard from './pages/AdminDashboard.svelte';
   import AdminProducts from './pages/AdminProducts.svelte';
+  import AdminInventory from './pages/AdminInventory.svelte';
   import AdminNewProduct from './pages/AdminNewProduct.svelte';
   import AdminOrders from './pages/AdminOrders.svelte';
   import AdminUsers from './pages/AdminUsers.svelte';
@@ -87,6 +88,8 @@
   <AdminOrders {navigate} />
 {:else if path === '/admin/productos'}
   <AdminProducts {navigate} />
+{:else if path === '/admin/inventario'}
+  <AdminInventory {navigate} />
 {:else if path === '/admin/dashboard'}
   <AdminDashboard {navigate} />
 {:else if path === '/admin'}
