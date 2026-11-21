@@ -20,6 +20,8 @@
   const routes: Partial<Record<(typeof adminSections)[number], string>> = {
     Resumen: '/admin/dashboard',
     Productos: '/admin/productos',
+    Pedidos: '/admin/pedidos',
+    Usuarios: '/admin/usuarios',
   };
 
   function openSection(section: (typeof adminSections)[number]) {

@@ -46,3 +46,36 @@ export const adminProducts: AdminProduct[] = [
   { id: 'pack-cumpleanos', name: 'Pack Cumpleaños', category: 'Paquetes', price: 289, stock: 4, status: 'Bajo' },
   { id: 'choco-lovers', name: 'Choco Lovers', category: 'Dulces', price: 199, stock: 18, status: 'Activo' },
 ];
+
+export type AdminOrder = {
+  id: string;
+  customer: string;
+  total: number;
+  date: string;
+  status: 'Pendiente' | 'Preparando' | 'Enviado' | 'Entregado' | 'Cancelado';
+};
+
+export const adminOrders: AdminOrder[] = [
+  { id: 'DP-1048', customer: 'Isaac Ortiz', total: 635, date: '6 nov', status: 'Pendiente' },
+  { id: 'DP-1047', customer: 'Ana López', total: 348, date: '6 nov', status: 'Preparando' },
+  { id: 'DP-1046', customer: 'Luis García', total: 219, date: '5 nov', status: 'Enviado' },
+  { id: 'DP-1045', customer: 'Karla Díaz', total: 189, date: '5 nov', status: 'Entregado' },
+  { id: 'DP-1044', customer: 'Marco Ruiz', total: 447, date: '4 nov', status: 'Cancelado' },
+  { id: 'DP-1043', customer: 'Sofía Pérez', total: 258, date: '4 nov', status: 'Entregado' },
+];
+
+export type AdminUser = {
+  name: string;
+  email: string;
+  role: 'Cliente' | 'Administrador';
+  orders: number | null;
+  status: 'Activo' | 'Suspendido';
+};
+
+export const adminUsers: AdminUser[] = [
+  { name: 'Isaac Ortiz', email: 'isaac@email.com', role: 'Cliente', orders: 6, status: 'Activo' },
+  { name: 'Ana López', email: 'ana@email.com', role: 'Cliente', orders: 3, status: 'Activo' },
+  { name: 'Luis García', email: 'luis@email.com', role: 'Cliente', orders: 2, status: 'Activo' },
+  { name: 'María Admin', email: 'maria@dulcepack.mx', role: 'Administrador', orders: null, status: 'Activo' },
+  { name: 'Marco Ruiz', email: 'marco@email.com', role: 'Cliente', orders: 1, status: 'Suspendido' },
+];

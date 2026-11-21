@@ -10,6 +10,8 @@
   import AdminLogin from './pages/AdminLogin.svelte';
   import AdminDashboard from './pages/AdminDashboard.svelte';
   import AdminProducts from './pages/AdminProducts.svelte';
+  import AdminOrders from './pages/AdminOrders.svelte';
+  import AdminUsers from './pages/AdminUsers.svelte';
   import type { CartItem, Product } from './types/product';
 
   const isProtectedAdminPath = (value: string) => value.startsWith('/admin/');
@@ -76,7 +78,11 @@
   });
 </script>
 
-{#if path === '/admin/productos'}
+{#if path === '/admin/usuarios'}
+  <AdminUsers {navigate} />
+{:else if path === '/admin/pedidos'}
+  <AdminOrders {navigate} />
+{:else if path === '/admin/productos'}
   <AdminProducts {navigate} />
 {:else if path === '/admin/dashboard'}
   <AdminDashboard {navigate} />
