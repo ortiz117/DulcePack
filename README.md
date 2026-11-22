@@ -1,66 +1,152 @@
 # DulcePack 🍬
 
-**Una tienda digital donde los antojos encuentran su lugar.**
+DulcePack es un proyecto académico de comercio electrónico para paquetes de dulces y snacks. Incluye una experiencia de compra responsive para clientes y un panel administrativo de demostración.
 
-DulcePack es un proyecto universitario de comercio electrónico enfocado en la venta de paquetes de dulces y snacks. Su objetivo es ofrecer una experiencia de compra sencilla, atractiva y organizada para los clientes, junto con herramientas de administración de productos, inventario, pedidos y usuarios.
+## Estado del proyecto
 
-> **Estado del proyecto:** planificación e inicio de desarrollo. Las características que se describen a continuación son requisitos previstos, no funcionalidades implementadas.
+El frontend del prototipo está implementado con todas las pantallas identificadas en los diseños de Figma.
 
-## Objetivo
+El proyecto funciona únicamente con datos mock y estado local del navegador. Todavía no incluye API, backend, base de datos, pagos reales, persistencia de pedidos ni autenticación segura de servidor.
 
-Desarrollar una tienda virtual donde los clientes puedan explorar productos, conocer sus características y realizar pedidos, mientras que los administradores gestionen las operaciones principales de la tienda desde un panel dedicado.
-
-## Público objetivo
-
-Jóvenes, estudiantes y personas interesadas en comprar paquetes de dulces y botanas de manera rápida y sencilla.
-
-## Funcionalidades previstas
+## Funcionalidades implementadas
 
 ### Cliente
 
-- Explorar la página principal, promociones y productos destacados.
-- Navegar por el catálogo y consultar detalles, precios y descripciones.
-- Añadir productos al carrito y revisar el total.
-- Registrarse e iniciar sesión.
-- Realizar pedidos.
+- Inicio, promociones, categorías y productos destacados.
+- Catálogo con búsqueda y filtros.
+- Detalle de producto y selección de cantidad.
+- Carrito con actualización y eliminación de productos.
+- Checkout y confirmación de pedido demostrativo.
+- Registro e inicio de sesión demostrativos.
+- Diseño responsive para escritorio, tablet y móvil.
 
-### Administrador
+### Administración
 
-- Acceder a un panel de administración.
-- Crear, consultar, actualizar y eliminar productos.
-- Administrar precios e inventario.
-- Consultar y gestionar pedidos.
-- Administrar cuentas de usuario.
+- Acceso administrativo demostrativo.
+- Dashboard con métricas, gráfica y accesos rápidos.
+- Listado y búsqueda de productos.
+- Creación y edición de productos en modo demostración.
+- Selección y arrastre de imágenes con validación local.
+- Inventario con métricas y estados de existencias.
+- Listado de pedidos y consulta demostrativa de detalles.
+- Listado de usuarios.
+- Navegación protegida mediante una sesión local de demostración.
 
-## Secciones previstas
-
-1. **Inicio:** identidad de la tienda, promociones y productos destacados.
-2. **Catálogo:** productos disponibles y categorías.
-3. **Detalle de producto:** imagen, descripción, precio y acción de compra.
-4. **Carrito:** productos seleccionados y resumen de compra.
-5. **Autenticación:** registro e inicio de sesión.
-6. **Administración:** gestión de productos, inventario, pedidos y usuarios.
-
-## Identidad visual
-
-DulcePack busca una apariencia moderna, juvenil, colorida y fácil de navegar. La paleta propuesta utiliza **morado** como color principal, **rosa** como acento, **amarillo** para destacar promociones y llamadas a la acción, y **blanco o tonos claros** para mantener la legibilidad.
-
-El diseño contempla tarjetas visuales para productos, botones reconocibles y una jerarquía clara de navegación. Los prototipos de Figma servirán como referencia de implementación.
-
-## Tecnologías contempladas
+## Tecnologías
 
 | Capa | Tecnología |
 | --- | --- |
-| Frontend | HTML, CSS y JavaScript (Svelte) |
-| Backend | Java con Spring Boot |
-| Base de datos | PostgreSQL |
-| Diseño de interfaz | Figma |
+| Frontend | Svelte 5, TypeScript y Vite |
+| Pruebas | Playwright y axe-core |
+| Fuentes | Fredoka y Nunito mediante Fontsource |
+| Backend futuro | Java con Spring Boot |
+| Base de datos futura | PostgreSQL |
+| Diseño | Figma |
 
+## Estructura
 
-## Alcance inicial
+```text
+DulcePack/
+├── frontend/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── data/
+│   │   ├── pages/
+│   │   ├── styles/
+│   │   ├── types/
+│   │   ├── App.svelte
+│   │   └── main.ts
+│   ├── tests/
+│   ├── design-review/
+│   ├── package.json
+│   └── playwright.config.ts
+├── backend/                 # Reservado; todavía vacío
+├── README.md
+└── RESUME.md
+```
 
-La primera etapa consistirá en definir la arquitectura del monorepositorio, revisar las pantallas de Figma y organizar el trabajo de implementación. El desarrollo del frontend y backend estará a cargo de Hermes.
+## Ejecución local
 
-## Sobre el proyecto
+Requisitos: Node.js y npm.
 
-Proyecto académico en desarrollo. La documentación se actualizará conforme se definan decisiones técnicas, se implementen módulos y existan instrucciones verificadas para ejecutar las aplicaciones localmente.
+```bash
+cd frontend
+npm install
+npm run dev -- --port 5173 --strictPort
+```
+
+Abrir:
+
+```text
+http://127.0.0.1:5173/
+```
+
+## Acceso administrativo de demostración
+
+```text
+URL:        http://127.0.0.1:5173/admin
+Correo:     admin@dulcepack.mx
+Contraseña: DulcePack2026
+```
+
+Estas credenciales y la sesión guardada en `sessionStorage` son exclusivamente demostrativas. No constituyen autenticación apta para producción.
+
+## Rutas principales
+
+### Cliente
+
+```text
+/
+/catalogo
+/producto/:id
+/carrito
+/checkout
+/confirmacion
+/iniciar-sesion
+/registro
+```
+
+### Administración
+
+```text
+/admin
+/admin/dashboard
+/admin/productos
+/admin/productos/nuevo
+/admin/productos/:id/editar
+/admin/inventario
+/admin/pedidos
+/admin/usuarios
+```
+
+## Verificación
+
+Desde `frontend/`:
+
+```bash
+npm run check
+npm run build
+npm test
+```
+
+Playwright prueba proyectos de escritorio y móvil. Las suites incluyen navegación, validaciones, rutas protegidas, comportamiento responsive, ausencia de overflow horizontal y comprobaciones automáticas WCAG A/AA con axe-core.
+
+Si Chromium no está instalado para Playwright:
+
+```bash
+npx playwright install chromium
+```
+
+## Limitaciones
+
+- Todos los productos, usuarios, pedidos, métricas y credenciales son mock.
+- El carrito y las sesiones son efímeros y se reinician al recargar o cerrar la sesión correspondiente.
+- Crear o editar productos no persiste información.
+- El checkout no procesa pagos ni crea pedidos reales.
+- No existe backend ni base de datos.
+- La aplicación se ha verificado principalmente con Chromium automatizado; falta validación manual en otros navegadores y dispositivos físicos.
+
+## Próxima etapa
+
+La siguiente fase técnica sería crear el backend con Spring Boot y PostgreSQL, definir contratos de API y reemplazar gradualmente los datos mock. Esa fase debe planificarse antes de implementar autenticación, inventario, pedidos o pagos reales.
