@@ -163,6 +163,16 @@ La documentación y cualquier ajuste final posterior pueden generar commits loca
 - Las comprobaciones de accesibilidad automatizadas no sustituyen pruebas manuales con lector de pantalla.
 - Verificado principalmente en Chromium automatizado; faltan Firefox, WebKit y dispositivos físicos.
 
+## Verificación final local
+
+Ejecutada sobre `develop` local antes de la entrega:
+
+- `npm run check`: 0 errores y 0 advertencias.
+- `npm run build`: correcto; 158 módulos transformados.
+- `npm test`: 110 pruebas aprobadas, 4 omitidas intencionalmente y 0 fallidas.
+- `git status`: árbol de trabajo limpio después del commit documental final.
+- No se ejecutó `git push`; al confirmar este ajuste documental, `develop` local queda cinco commits por delante de `origin/develop`.
+
 ## Próxima fase técnica
 
 Si el usuario decide continuar más allá del prototipo frontend:
