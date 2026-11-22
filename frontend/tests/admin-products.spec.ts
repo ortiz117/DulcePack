@@ -27,7 +27,7 @@ test('productos muestra el listado mock fiel y permite buscar por nombre', async
   await expect(table.getByText('Pack Fiesta Dulce')).toBeHidden();
 });
 
-test('nuevo producto navega a su formulario y editar permanece fuera de alcance', async ({ page, isMobile }) => {
+test('nuevo producto y editar navegan a sus formularios correspondientes', async ({ page, isMobile }) => {
   await enableAdminSession(page);
   await page.goto('/admin/productos');
 
@@ -40,7 +40,16 @@ test('nuevo producto navega a su formulario y editar permanece fuera de alcance'
 
   await page.goto('/admin/productos');
   await page.getByRole('button', { name: 'Editar Pack Fiesta Dulce' }).click();
-  await expect(page.getByRole('status')).toContainText('La edición de Pack Fiesta Dulce estará disponible');
+  await expect(page).toHaveURL(/\/admin\/productos\/fiesta-dulce\/editar$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Editar producto' })).toBeVisible();
+  await expect(page).toHaveTitle('Editar producto | DulcePack');
+  await expect(page.getByLabel('Nombre')).toHaveValue('Pack Fiesta Dulce');
+  await expect(page.getByLabel('Descripción')).toHaveValue('Dulces variados para compartir');
+  await expect(page.getByLabel('Precio')).toHaveValue('189');
+  await expect(page.getByLabel('Stock')).toHaveValue('24');
+  await expect(page.getByLabel('Categoría')).toHaveValue('Paquetes');
+  await expect(page.getByLabel('Etiquetas')).toHaveValue('Fiesta, Compartir, Más vendido');
+  await expect(page.getByRole('button', { name: 'Guardar cambios' })).toBeVisible();
 });
 
 test('productos es responsive y cumple las comprobaciones automáticas WCAG AA', async ({ page }) => {

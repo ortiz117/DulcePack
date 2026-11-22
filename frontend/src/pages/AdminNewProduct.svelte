@@ -1,15 +1,46 @@
 <script lang="ts">
   import AdminShell from '../components/AdminShell.svelte';
+  import { adminProducts } from '../data/admin';
 
-  let { navigate }: { navigate: (path: string) => void } = $props();
+  let { navigate, replaceNavigate, productId }: {
+    navigate: (path: string) => void;
+    replaceNavigate: (path: string) => void;
+    productId?: string;
+  } = $props();
+  const product = $derived(productId ? adminProducts.find(item => item.id === productId) : undefined);
+  const isEditing = $derived(Boolean(productId));
+  const title = $derived(isEditing ? 'Editar producto' : 'Nuevo producto');
+  const initialValues = $derived(product
+    ? {
+        name: product.name,
+        description: product.id === 'fiesta-dulce' ? 'Dulces variados para compartir' : `Selección demostrativa de ${product.name}`,
+        price: product.price,
+        stock: product.stock,
+        category: product.category,
+        tags: product.id === 'fiesta-dulce' ? 'Fiesta, Compartir, Más vendido' : `Demo, ${product.category}`,
+      }
+    : {
+        name: 'Pack Fiesta Dulce',
+        description: 'Dulces variados para compartir',
+        price: 189,
+        stock: 24,
+        category: 'Paquetes',
+        tags: 'Fiesta, Compartir, Más vendido',
+      });
   let status = $state('');
   let fileName = $state('');
   let imageError = $state('');
   let isDragging = $state(false);
 
+  $effect(() => {
+    if (isEditing && !product) replaceNavigate('/admin/productos');
+  });
+
   function saveProduct(event: SubmitEvent) {
     event.preventDefault();
-    status = 'Producto guardado en modo demostración. Los cambios no son persistentes.';
+    status = isEditing
+      ? 'Cambios guardados en modo demostración. Los cambios no son persistentes.'
+      : 'Producto guardado en modo demostración. Los cambios no son persistentes.';
   }
 
   function clearStatus() {
@@ -60,28 +91,28 @@
   }
 </script>
 
-<svelte:head><title>Nuevo producto | DulcePack</title></svelte:head>
+<svelte:head><title>{title} | DulcePack</title></svelte:head>
 
-<AdminShell title="Nuevo producto" active="Productos" {navigate}>
+<AdminShell {title} active="Productos" {navigate}>
   <div class="product-layout">
     <section class="product-form-card" aria-labelledby="product-information-title">
       <h2 id="product-information-title">Información del producto</h2>
       <form onsubmit={saveProduct} oninput={clearStatus}>
-        <label>Nombre<input name="name" value="Pack Fiesta Dulce" required /></label>
-        <label>Descripción<textarea name="description" required>Dulces variados para compartir</textarea></label>
+        <label>Nombre<input name="name" value={initialValues.name} required /></label>
+        <label>Descripción<textarea name="description" required>{initialValues.description}</textarea></label>
         <div class="field-row">
-          <label>Precio<input name="price" type="number" value="189" min="0.01" step="0.01" required /></label>
-          <label>Stock<input name="stock" type="number" value="24" min="0" step="1" required /></label>
+          <label>Precio<input name="price" type="number" value={initialValues.price} min="0.01" step="0.01" required /></label>
+          <label>Stock<input name="stock" type="number" value={initialValues.stock} min="0" step="1" required /></label>
         </div>
         <label>Categoría
-          <select name="category" required>
+          <select name="category" value={initialValues.category} required>
             <option>Paquetes</option>
             <option>Dulces</option>
             <option>Botanas</option>
           </select>
         </label>
-        <label>Etiquetas<input name="tags" value="Fiesta, Compartir, Más vendido" required /></label>
-        <button type="submit">Guardar producto</button>
+        <label>Etiquetas<input name="tags" value={initialValues.tags} required /></label>
+        <button type="submit">{isEditing ? 'Guardar cambios' : 'Guardar producto'}</button>
       </form>
       {#if status}<p class="save-status" role="status">{status}</p>{/if}
     </section>

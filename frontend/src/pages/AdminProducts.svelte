@@ -4,12 +4,7 @@
 
   let { navigate }: { navigate: (path: string) => void } = $props();
   let query = $state('');
-  let notice = $state('');
   let filteredProducts = $derived(adminProducts.filter(product => product.name.toLocaleLowerCase('es-MX').includes(query.trim().toLocaleLowerCase('es-MX'))));
-
-  function announce(message: string) {
-    notice = message;
-  }
 </script>
 
 <svelte:head><title>Productos administrativos | DulcePack</title></svelte:head>
@@ -46,7 +41,7 @@
               <td>${product.price}</td>
               <td>{product.stock}</td>
               <td><span class:low={product.status === 'Bajo'} class="status-badge">{product.status}</span></td>
-              <td><button class="edit-action" type="button" aria-label={`Editar ${product.name}`} onclick={() => announce(`La edición de ${product.name} estará disponible en su vista asignada.`)}>Editar</button></td>
+              <td><button class="edit-action" type="button" aria-label={`Editar ${product.name}`} onclick={() => navigate(`/admin/productos/${product.id}/editar`)}>Editar</button></td>
             </tr>
           {:else}
             <tr class="empty-row"><td colspan="6">No encontramos productos con ese nombre.</td></tr>
@@ -56,8 +51,6 @@
     </div>
   </section>
 </AdminShell>
-
-{#if notice}<div class="toast" role="status">{notice}<button type="button" aria-label="Cerrar aviso" onclick={() => notice = ''}>×</button></div>{/if}
 
 <style>
   .product-actions { margin-top: 35px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
@@ -89,8 +82,6 @@
   .edit-action { min-height: 44px; padding: 0; border: 0; color: #6b5a7a; background: transparent; font-weight: 600; text-align: left; }
   .edit-action:hover { color: var(--purple); text-decoration: underline; }
   .empty-row td { height: 120px; color: #6b5a7a; text-align: center; }
-  .toast { position: fixed; right: 24px; bottom: 24px; z-index: 50; width: min(460px, calc(100% - 32px)); display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 18px; border-radius: 14px; color: white; background: var(--ink); box-shadow: 0 15px 35px rgba(36,18,58,.22); }
-  .toast button { border: 0; color: white; background: transparent; font-size: 24px; line-height: 1; }
 
   @media (max-width: 800px) {
     .product-actions { margin-top: 24px; align-items: stretch; flex-direction: column; gap: 12px; }
@@ -98,8 +89,5 @@
     .products-panel { margin-top: 20px; min-height: 620px; padding: 14px; }
     .scroll-hint { display: block; margin: 0 0 10px; color: #6b5a7a; font-size: 12px; }
     .table-scroll { padding-bottom: 4px; }
-  }
-  @media (max-width: 520px) {
-    .toast { right: 16px; bottom: 16px; }
   }
 </style>

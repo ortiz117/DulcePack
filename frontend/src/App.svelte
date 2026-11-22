@@ -16,12 +16,29 @@
   import AdminUsers from './pages/AdminUsers.svelte';
   import type { CartItem, Product } from './types/product';
 
+  type NavigationOptions = { replace?: boolean };
+
+  const adminProductEditPath = /^\/admin\/productos\/([^/]+)\/editar$/;
   const isProtectedAdminPath = (value: string) => value.startsWith('/admin/');
-  const initialPath = isProtectedAdminPath(window.location.pathname) && sessionStorage.getItem('dulcepack-admin-session') !== 'active'
-    ? '/admin'
-    : window.location.pathname;
+
+  function normalizeAdminProductPath(value: string) {
+    if (
+      value.startsWith('/admin/productos/')
+      && value !== '/admin/productos/nuevo'
+      && !adminProductEditPath.test(value)
+    ) return '/admin/productos';
+    return value;
+  }
+
+  function resolvePath(value: string) {
+    if (isProtectedAdminPath(value) && sessionStorage.getItem('dulcepack-admin-session') !== 'active') return '/admin';
+    return normalizeAdminProductPath(value);
+  }
+
+  const initialPath = resolvePath(window.location.pathname);
   if (initialPath !== window.location.pathname) history.replaceState({}, '', initialPath);
   let path = $state(initialPath);
+  let editProductId = $derived(path.match(adminProductEditPath)?.[1] ?? '');
   let cart = $state<CartItem[]>([]);
   let cartCount = $derived(cart.reduce((total, item) => total + item.quantity, 0));
   let subtotal = $derived(cart.reduce((total, item) => total + item.product.price * item.quantity, 0));
@@ -60,28 +77,32 @@
     navigate('/');
   }
 
-  function navigate(nextPath: string) {
-    const allowedPath = isProtectedAdminPath(nextPath) && sessionStorage.getItem('dulcepack-admin-session') !== 'active'
-      ? '/admin'
-      : nextPath;
-    history.pushState({}, '', allowedPath);
+  function updatePath(nextPath: string, options: NavigationOptions = {}) {
+    const allowedPath = resolvePath(nextPath);
+    if (allowedPath !== window.location.pathname) {
+      if (options.replace) history.replaceState({}, '', allowedPath);
+      else history.pushState({}, '', allowedPath);
+    }
     path = allowedPath;
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
+  const navigate = (nextPath: string) => updatePath(nextPath);
+  const replaceNavigate = (nextPath: string) => updatePath(nextPath, { replace: true });
+
   window.addEventListener('popstate', () => {
-    const nextPath = window.location.pathname;
-    if (isProtectedAdminPath(nextPath) && sessionStorage.getItem('dulcepack-admin-session') !== 'active') {
-      history.replaceState({}, '', '/admin');
-      path = '/admin';
-      return;
-    }
+    const nextPath = resolvePath(window.location.pathname);
+    if (nextPath !== window.location.pathname) history.replaceState({}, '', nextPath);
     path = nextPath;
   });
 </script>
 
 {#if path === '/admin/productos/nuevo'}
-  <AdminNewProduct {navigate} />
+  <AdminNewProduct {navigate} {replaceNavigate} />
+{:else if editProductId}
+  {#key editProductId}
+    <AdminNewProduct productId={editProductId} {navigate} {replaceNavigate} />
+  {/key}
 {:else if path === '/admin/usuarios'}
   <AdminUsers {navigate} />
 {:else if path === '/admin/pedidos'}

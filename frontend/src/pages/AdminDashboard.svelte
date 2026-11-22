@@ -5,18 +5,17 @@
   let menuOpen = $state(false);
   let notice = $state('');
   const maxSale = Math.max(...weeklySales.map(sale => sale.value));
+  const sectionPaths: Record<(typeof adminSections)[number], string> = {
+    Resumen: '/admin/dashboard',
+    Productos: '/admin/productos',
+    Inventario: '/admin/inventario',
+    Pedidos: '/admin/pedidos',
+    Usuarios: '/admin/usuarios',
+  };
 
-  function announce(section: string) {
-    if (section === 'Productos') {
-      navigate('/admin/productos');
-      return;
-    }
-    if (section === 'Inventario') {
-      navigate('/admin/inventario');
-      return;
-    }
-    notice = `${section} estará disponible en su módulo asignado.`;
+  function navigateToSection(section: (typeof adminSections)[number]) {
     menuOpen = false;
+    navigate(sectionPaths[section]);
   }
 
   function logout() {
@@ -40,7 +39,7 @@
 
     <nav aria-label="Administración">
       {#each adminSections as section, index}
-        <button class:active={index === 0} type="button" aria-current={index === 0 ? 'page' : undefined} onclick={() => index === 0 ? menuOpen = false : announce(section)}>{section}</button>
+        <button class:active={index === 0} type="button" aria-current={index === 0 ? 'page' : undefined} onclick={() => navigateToSection(section)}>{section}</button>
       {/each}
     </nav>
     <button class="logout" type="button" onclick={logout}>Cerrar sesión</button>
@@ -91,9 +90,9 @@
       <aside class="quick-actions" aria-labelledby="actions-title">
         <h2 id="actions-title">Acciones rápidas</h2>
         <div class="action-buttons">
-          <button class="primary-action" type="button" onclick={() => announce('Productos')}>Gestionar productos</button>
-          <button type="button" onclick={() => announce('Pedidos')}>Revisar pedidos</button>
-          <button type="button" onclick={() => announce('Inventario')}>Actualizar inventario</button>
+          <button class="primary-action" type="button" onclick={() => navigateToSection('Productos')}>Gestionar productos</button>
+          <button type="button" onclick={() => navigateToSection('Pedidos')}>Revisar pedidos</button>
+          <button type="button" onclick={() => navigateToSection('Inventario')}>Actualizar inventario</button>
         </div>
       </aside>
     </section>

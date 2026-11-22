@@ -35,14 +35,46 @@ test('el acceso administrativo valida credenciales mock y abre el dashboard', as
   await expect(page.getByText('36', { exact: true })).toBeVisible();
 });
 
-test('el dashboard ofrece acciones mock sin desarrollar módulos adicionales', async ({ page, isMobile }) => {
+test('volver tras pulsar Resumen en el dashboard regresa a la ruta anterior', async ({ page, isMobile }) => {
+  await enableAdminSession(page);
+  await page.goto('/catalogo');
+  await page.evaluate(() => {
+    history.pushState({}, '', '/admin/dashboard');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  });
+  await expect(page.getByRole('heading', { level: 1, name: 'Resumen' })).toBeVisible();
+
+  if (isMobile) await page.getByRole('button', { name: 'Abrir menú administrativo' }).click();
+  await page.getByRole('button', { name: 'Resumen', exact: true }).click();
+  await page.goBack();
+
+  await expect(page).toHaveURL(/\/catalogo$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Catálogo' })).toBeVisible();
+});
+
+test('el dashboard navega a todos los módulos administrativos reales', async ({ page, isMobile }) => {
   await enableAdminSession(page);
   await page.goto('/admin/dashboard');
 
   await expect(page.getByRole('heading', { name: 'Ventas semanales' })).toBeVisible();
   await expect(page.getByRole('img', { name: 'Gráfica de ventas semanales' })).toBeVisible();
-  await page.getByRole('button', { name: 'Gestionar productos' }).click();
-  await expect(page).toHaveURL(/\/admin\/productos$/);
+
+  for (const [section, path] of [
+    ['Productos', '/admin/productos'],
+    ['Inventario', '/admin/inventario'],
+    ['Pedidos', '/admin/pedidos'],
+    ['Usuarios', '/admin/usuarios'],
+    ['Resumen', '/admin/dashboard'],
+  ] as const) {
+    await page.goto('/admin/dashboard');
+    if (isMobile) await page.getByRole('button', { name: 'Abrir menú administrativo' }).click();
+    await page.getByRole('button', { name: section, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`${path}$`));
+  }
+
+  await page.goto('/admin/dashboard');
+  await page.getByRole('button', { name: 'Revisar pedidos' }).click();
+  await expect(page).toHaveURL(/\/admin\/pedidos$/);
 
   if (isMobile) await page.getByRole('button', { name: 'Abrir menú administrativo' }).click();
   await page.getByRole('button', { name: 'Cerrar sesión' }).click();
