@@ -17,6 +17,7 @@
   let searchOpen = $state(false);
   let searchInput: HTMLInputElement;
   const normalized = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es-MX').trim();
+  let searchActive = $derived(normalized(query) !== '');
   let filteredProducts = $derived(featuredProducts.filter(product =>
     (!categoryFilter || product.category === categoryFilter) &&
     normalized(`${product.name} ${product.description}`).includes(normalized(query))
@@ -50,7 +51,7 @@
     <div class="search-row"><input id="favorite-search" bind:this={searchInput} type="search" bind:value={query} placeholder="Prueba con gomitas o chocolate" onkeydown={(event) => { if (event.key === 'Escape') void toggleSearch(); }} /><button type="button" onclick={toggleSearch}>Cerrar búsqueda</button></div>
     <p>Busca solo en los cuatro productos de demostración de Inicio.</p>
   </div>
-  <section class="hero" id="promociones" aria-labelledby="hero-title">
+  <section class="hero" id="promociones" aria-labelledby="hero-title" hidden={searchActive}>
     <div class="hero-copy">
       <span class="eyebrow"><span class="desktop-text">¡Sabor de la semana!</span><span class="mobile-text">Nuevo</span></span>
       <h1 id="hero-title">Antojos para<br />cada momento</h1>
@@ -60,7 +61,7 @@
     <img class="hero-image" src={heroImage} alt="Paquete Fiesta morado rodeado de confeti rosa y amarillo" width="590" height="334" fetchpriority="high" />
   </section>
 
-  <section class="categories" id="categorias" aria-labelledby="category-title">
+  <section class="categories" id="categorias" aria-labelledby="category-title" hidden={searchActive}>
     <div class="section-heading"><h2 id="category-title"><span class="desktop-text">Explora por antojo</span><span class="mobile-text">Categorías</span></h2><a href="#favoritos" onclick={resetFilters}>Ver todo <span aria-hidden="true">→</span></a></div>
     <div class="category-list">
       {#each categories as category}
@@ -69,13 +70,13 @@
     </div>
   </section>
 
-  <section class="favorites" id="favoritos" aria-labelledby="favorites-title">
-    <div class="section-heading"><h2 id="favorites-title"><span class="desktop-text">Los favoritos de la semana</span><span class="mobile-text">Favoritos</span></h2></div>
+  <section class:search-results={searchActive} class="favorites" id="favoritos" aria-labelledby="favorites-title">
+    <div class="section-heading"><h2 id="favorites-title">{searchActive ? 'Resultados de búsqueda' : 'Los favoritos de la semana'}</h2></div>
     {#if categoryFilter || query}<div class="filter-summary"><span>Favoritos encontrados: {filteredProducts.length}</span><button type="button" onclick={resetFilters}>Mostrar todos los favoritos</button></div>{/if}
     <div class="product-grid">{#each filteredProducts as product (product.id)}<ProductCard {product} onadd={addDemoProduct} mobilePriority />{:else}<p class="empty-state">No encontramos favoritos con esos filtros.</p>{/each}</div>
   </section>
 
-  <aside class="benefits" aria-label="Beneficios previstos de la tienda, sujetos a implementación">
+  <aside class="benefits" aria-label="Beneficios previstos de la tienda, sujetos a implementación" hidden={searchActive}>
     {#each ['Envío rápido 2–5 días', 'Pago seguro', 'Empaque para regalo', 'Atención cercana'] as benefit}<span><Icon name="check" />{benefit}</span>{/each}
   </aside>
 </main>
@@ -98,6 +99,7 @@
   .notice.visible { opacity: 1; pointer-events: auto; display: flex; gap: 16px; align-items: center; }
   .notice button { flex-shrink: 0; width: 44px; height: 44px; border-radius: 8px; background: #ffffff15; color: white; border: 0; font-size: 26px; }
   .hero { background: var(--purple); color: white; border-radius: 30px; padding: 48px; display: grid; grid-template-columns: 1fr 1.05fr; gap: 48px; align-items: center; min-height: 430px; }
+  .hero[hidden], .categories[hidden], .benefits[hidden] { display: none; }
   .eyebrow { display: inline-flex; background: var(--yellow); color: var(--ink); padding: 6px 12px; font-size: 12px; border-radius: 50px; }
   h1 { font: 600 clamp(32px, 3.7vw, 54px)/1.08 'Fredoka Variable', sans-serif; letter-spacing: -.02em; margin: 18px 0 14px; }
   .hero-copy > p { max-width: 460px; font-size: 16px; line-height: 1.5; margin: 0 0 20px; }
@@ -117,6 +119,7 @@
   .category.gomitas { background: #fff4c5; } .category.chocolates { background: var(--lavender); }
   .favorites { margin-top: 32px; }
   .product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+  .favorites.search-results .product-grid { grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 300px)); }
   .benefits { display: flex; align-items: center; gap: 36px; flex-wrap: wrap; margin-top: 32px; min-height: 96px; padding: 24px 30px; border-radius: 20px; background: #fff4c5; }
   .benefits span { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; }
   .benefits :global(svg) { width: 16px; height: 16px; }

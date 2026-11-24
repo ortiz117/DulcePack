@@ -32,6 +32,11 @@ test('la búsqueda del encabezado filtra productos y se puede cerrar con Escape'
   await search.fill('PICOSITA');
   await expect(page.getByRole('article')).toHaveCount(1);
   await expect(page.getByRole('heading', { name: 'Box Picosita', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Catálogo de antojos' })).not.toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Filtros del catálogo' })).not.toBeVisible();
+  await expect(page.getByRole('group', { name: 'Categorías rápidas' })).not.toBeVisible();
+  await search.fill('');
+  await expect(page.getByRole('heading', { level: 1, name: 'Catálogo de antojos' })).toBeVisible();
   await search.press('Escape');
   await expect(search).not.toBeVisible();
 });

@@ -75,21 +75,31 @@ export const adminProducts: AdminProduct[] = [
   { id: 'choco-lovers', name: 'Choco Lovers', category: 'Dulces', price: 199, stock: 18, status: 'Activo' },
 ];
 
+export type AdminOrderItem = {
+  product: string;
+  quantity: number;
+  unitPrice: number;
+};
+
 export type AdminOrder = {
   id: string;
   customer: string;
+  email: string;
+  address: string;
+  items: AdminOrderItem[];
+  shipping: number;
   total: number;
   date: string;
   status: 'Pendiente' | 'Preparando' | 'Enviado' | 'Entregado' | 'Cancelado';
 };
 
 export const adminOrders: AdminOrder[] = [
-  { id: 'DP-1048', customer: 'Isaac Ortiz', total: 635, date: '6 nov', status: 'Pendiente' },
-  { id: 'DP-1047', customer: 'Ana López', total: 348, date: '6 nov', status: 'Preparando' },
-  { id: 'DP-1046', customer: 'Luis García', total: 219, date: '5 nov', status: 'Enviado' },
-  { id: 'DP-1045', customer: 'Karla Díaz', total: 189, date: '5 nov', status: 'Entregado' },
-  { id: 'DP-1044', customer: 'Marco Ruiz', total: 447, date: '4 nov', status: 'Cancelado' },
-  { id: 'DP-1043', customer: 'Sofía Pérez', total: 258, date: '4 nov', status: 'Entregado' },
+  { id: 'DP-1048', customer: 'Isaac Ortiz', email: 'isaac@email.com', address: 'Av. Universidad 120, Col. Centro', items: [{ product: 'Pack Fiesta Dulce', quantity: 2, unitPrice: 189 }, { product: 'Box Picosita', quantity: 1, unitPrice: 159 }], shipping: 98, total: 635, date: '6 nov', status: 'Pendiente' },
+  { id: 'DP-1047', customer: 'Ana López', email: 'ana@email.com', address: 'Calle Primavera 42, Col. Jardines', items: [{ product: 'Pack Fiesta Dulce', quantity: 1, unitPrice: 189 }, { product: 'Box Picosita', quantity: 1, unitPrice: 159 }], shipping: 0, total: 348, date: '6 nov', status: 'Preparando' },
+  { id: 'DP-1046', customer: 'Luis García', email: 'luis@email.com', address: 'Paseo del Lago 18, Col. Las Flores', items: [{ product: 'Noche de Pelis', quantity: 1, unitPrice: 219 }], shipping: 0, total: 219, date: '5 nov', status: 'Enviado' },
+  { id: 'DP-1045', customer: 'Karla Díaz', email: 'karla@email.com', address: 'Calle Naranjo 75, Col. Alameda', items: [{ product: 'Pack Fiesta Dulce', quantity: 1, unitPrice: 189 }], shipping: 0, total: 189, date: '5 nov', status: 'Entregado' },
+  { id: 'DP-1044', customer: 'Marco Ruiz', email: 'marco@email.com', address: 'Av. Reforma 330, Col. Moderna', items: [{ product: 'Box Picosita', quantity: 2, unitPrice: 159 }, { product: 'Mix Gomitas', quantity: 1, unitPrice: 129 }], shipping: 0, total: 447, date: '4 nov', status: 'Cancelado' },
+  { id: 'DP-1043', customer: 'Sofía Pérez', email: 'sofia@email.com', address: 'Calle Luna 16, Col. Mirador', items: [{ product: 'Mix Gomitas', quantity: 1, unitPrice: 129 }, { product: 'Selección de snacks', quantity: 1, unitPrice: 50 }], shipping: 79, total: 258, date: '4 nov', status: 'Entregado' },
 ];
 
 export type AdminUser = {

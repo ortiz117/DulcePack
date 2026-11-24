@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Brand from '../components/Brand.svelte';
+
   let { navigate, login }: { navigate: (path: string) => void; login: (email: string) => void } = $props();
   let email = $state('');
   let password = $state('');
@@ -13,7 +15,7 @@
 <main class="auth-page">
   <section class="auth-card">
     <aside class="brand-panel">
-      <a href="/" onclick={(event) => { event.preventDefault(); navigate('/'); }}>DulcePack</a>
+      <Brand size="panel" onclick={(event) => { event.preventDefault(); navigate('/'); }} />
       <p>Tu próxima caja de antojos está a unos pasos.</p>
     </aside>
     <section class="form-panel" aria-labelledby="login-title">
@@ -35,7 +37,6 @@
   .auth-page { min-height: 100vh; padding: 24px 5%; display: grid; place-items: start center; background: #fff9fc; }
   .auth-card { width: min(1296px, 100%); min-height: 840px; display: grid; grid-template-columns: .86fr 1.14fr; overflow: hidden; border-radius: 28px; background: white; }
   .brand-panel { padding: 72px 56px; background: var(--purple); color: white; }
-  .brand-panel a { color: white; font: 600 54px 'Fredoka Variable', sans-serif; text-decoration: none; }
   .brand-panel p { margin-top: 22px; font-size: 18px; }
   .form-panel { padding: 72px 96px; }
   form { width: min(440px, 100%); }
@@ -53,7 +54,6 @@
     .auth-page { display: block; padding: 0; }
     .auth-card { min-height: 100vh; display: block; border-radius: 0; }
     .brand-panel { padding: 28px 24px; text-align: center; }
-    .brand-panel a { font-size: 34px; }
     .brand-panel p { display: none; }
     .form-panel { padding: 44px 24px; }
     form { margin: 0 auto; }
