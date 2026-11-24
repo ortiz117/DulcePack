@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Brand from '../components/Brand.svelte';
+
   let { navigate }: { navigate: (path: string) => void } = $props();
 
   const demoEmail = 'admin@dulcepack.mx';
@@ -29,7 +31,7 @@
 <main class="admin-login">
   <section class="login-card" aria-labelledby="admin-login-title">
     <aside class="brand-panel">
-      <a href="/" onclick={(event) => { event.preventDefault(); navigate('/'); }}>DulcePack</a>
+      <Brand size="panel" onclick={(event) => { event.preventDefault(); navigate('/'); }} />
       <p>Controla productos, inventario y pedidos<br />desde un solo lugar.</p>
     </aside>
 
@@ -76,14 +78,6 @@
     padding: 86px 56px;
     color: white;
     background: var(--purple);
-  }
-  .brand-panel a {
-    position: relative;
-    z-index: 1;
-    color: white;
-    font: 700 58px/1 'Fredoka Variable', sans-serif;
-    letter-spacing: -.035em;
-    text-decoration: none;
   }
   .brand-panel p {
     position: relative;
@@ -140,14 +134,12 @@
   @media (max-width: 900px) {
     .login-card { grid-template-columns: 40% 60%; }
     .brand-panel { padding: 72px 38px; }
-    .brand-panel a { font-size: 45px; }
     .form-panel { padding: 72px 48px; }
   }
   @media (max-width: 700px) {
     .admin-login { display: block; padding: 20px 16px; }
     .login-card { min-height: 0; display: block; border-radius: 21px; }
     .brand-panel { padding: 34px 24px 36px; }
-    .brand-panel a { font-size: 42px; }
     .brand-panel p { margin-top: 16px; font-size: 16px; }
     .form-panel { padding: 38px 24px 42px; }
     form { margin: 0 auto; }

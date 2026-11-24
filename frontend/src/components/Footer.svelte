@@ -1,5 +1,9 @@
+<script lang="ts">
+  import Brand from './Brand.svelte';
+</script>
+
 <footer class="site-footer container">
-  <div class="footer-brand"><a href="#inicio">DulcePack</a><p>Una tienda digital donde los antojos encuentran su lugar.</p></div>
+  <div class="footer-brand"><Brand href="#inicio" size="footer" /><p>Una tienda digital donde los antojos encuentran su lugar.</p></div>
   <div><h2>Tienda</h2><a href="#favoritos">Favoritos</a><a href="#categorias">Categorías</a></div>
   <div><h2>Tu compra</h2><p>Carrito y pedido<br />Flujo de demostración</p></div>
   <div><h2>Hecho para compartir</h2><p>Dulces, snacks y muchos buenos momentos.</p></div>
@@ -8,7 +12,7 @@
 
 <style>
   .site-footer { margin-top: 32px; margin-bottom: 24px; padding: 36px 48px 24px; display: grid; grid-template-columns: 1.7fr 1fr 1fr 1fr; gap: 28px; background: var(--purple); border-radius: 20px; color: white; }
-  .footer-brand > a { font: 600 28px 'Fredoka Variable', sans-serif; }
+
   h2 { font: 500 18px 'Fredoka Variable', sans-serif; margin: 0 0 12px; }
   p, a { color: inherit; font-size: 14px; line-height: 1.6; }
   p { margin: 8px 0 0; } a { display: block; text-decoration: none; margin-bottom: 8px; } a:hover { text-decoration: underline; }

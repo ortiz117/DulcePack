@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Brand from './Brand.svelte';
   import Icon from './Icon.svelte';
   let { cartCount = 0, onpending, oncatalog, oncart, onsearch, searchOpen, active = 'inicio', searchControls = 'home-search' }: {
     cartCount?: number;
@@ -19,7 +20,7 @@
 </script>
 
 <header class="site-header container">
-  <a class="brand" href={active === 'inicio' ? '#inicio' : '/'} aria-label="DulcePack, inicio"><span class="brand-dot" aria-hidden="true"></span>DulcePack</a>
+  <Brand href={active === 'inicio' ? '#inicio' : '/'} />
   <nav aria-label="Navegación principal">
     <a href="/" aria-current={active === 'inicio' ? 'page' : undefined}>Inicio</a>
     <button type="button" aria-current={active === 'catalogo' ? 'page' : undefined} onclick={() => oncatalog ? oncatalog() : onpending('Catálogo')}>Catálogo</button>
@@ -34,8 +35,7 @@
 
 <style>
   .site-header { display: flex; align-items: center; gap: 24px; min-height: 84px; padding: 16px 24px; margin-top: 24px; margin-bottom: 32px; background: white; border-radius: 16px; box-shadow: var(--shadow); }
-  .brand { display: flex; align-items: center; gap: 10px; color: var(--purple); font: 600 22px 'Fredoka Variable', sans-serif; text-decoration: none; white-space: nowrap; }
-  .brand-dot { width: 34px; height: 34px; background: var(--pink); border-radius: 50%; }
+
   nav { display: flex; align-items: center; gap: 24px; }
   nav a, nav button, .account { color: var(--ink); font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; }
   nav a[aria-current], nav button[aria-current] { color: var(--purple); }
@@ -49,7 +49,6 @@
   @media (max-width: 760px) { nav { display: none; } .account span { display: none; } .account :global(svg) { display: block; } }
   @media (max-width: 600px) {
     .site-header { margin-top: 16px; margin-bottom: 20px; min-height: 64px; padding: 8px 16px; border-radius: 18px; }
-    .brand { font-size: 24px; } .brand-dot { display: none; }
     .header-actions { gap: 4px; } .search { padding: 8px; color: var(--muted); }
     .search :global(svg) { width: 18px; height: 18px; }
     .cart { gap: 4px; } .cart :global(svg) { width: 18px; height: 18px; }
