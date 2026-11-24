@@ -1,7 +1,7 @@
 <footer class="site-footer container">
   <div class="footer-brand"><a href="#inicio">DulcePack</a><p>Una tienda digital donde los antojos encuentran su lugar.</p></div>
   <div><h2>Tienda</h2><a href="#favoritos">Favoritos</a><a href="#categorias">Categorías</a></div>
-  <div><h2>Tu compra</h2><p>Carrito y pedidos<br />Próximamente</p></div>
+  <div><h2>Tu compra</h2><p>Carrito y pedido<br />Flujo de demostración</p></div>
   <div><h2>Hecho para compartir</h2><p>Dulces, snacks y muchos buenos momentos.</p></div>
   <p class="demo-note">Modo demostración · Productos y precios de ejemplo. Sin compras ni pagos reales. El contador se reinicia al recargar.</p>
 </footer>

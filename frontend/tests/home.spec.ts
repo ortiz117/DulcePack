@@ -39,20 +39,22 @@ test('las categorías filtran los favoritos sin abrir una segunda vista', async 
   expect(new URL(page.url()).pathname).toBe('/');
 });
 
-test('las vistas pendientes informan sin navegar y permiten cerrar el aviso', async ({ page, isMobile }) => {
+test('catálogo, carrito y cuenta navegan a sus vistas', async ({ page, isMobile }) => {
   await page.goto('/');
   await page.getByRole('button', { name: isMobile ? 'Ver catálogo' : 'Explorar catálogo', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Catálogo: disponible en una próxima vista');
-  await page.getByRole('button', { name: 'Cerrar aviso' }).click();
-  await expect(page.getByRole('status')).toBeEmpty();
+  await expect(page).toHaveURL(/\/catalogo$/);
+  await page.goBack();
   await page.getByRole('button', { name: 'Carrito de demostración: 0 productos', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Carrito: disponible en una próxima vista');
-  await page.getByRole('button', { name: 'Cerrar aviso' }).click();
+  await expect(page).toHaveURL(/\/carrito$/);
+  await expect(page.getByText('Tu carrito está vacío.')).toBeVisible();
+  await page.goBack();
   if (!isMobile) {
     await page.getByRole('button', { name: 'Mi cuenta', exact: true }).click();
-    await expect(page.getByRole('status')).toContainText('Mi cuenta: disponible en una próxima vista');
+    await expect(page).toHaveURL(/\/iniciar-sesion$/);
+    await expect(page.getByRole('heading', { name: 'Bienvenido de nuevo' })).toBeVisible();
+  } else {
+    expect(new URL(page.url()).pathname).toBe('/');
   }
-  expect(new URL(page.url()).pathname).toBe('/');
 });
 
 test('agregar actualiza solamente el contador de demostración y se reinicia al recargar', async ({ page }) => {

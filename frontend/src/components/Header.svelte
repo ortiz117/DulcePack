@@ -1,19 +1,34 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
-  let { cartCount = 0, onpending, onsearch, searchOpen }: { cartCount?: number; onpending: (view: string) => void; onsearch: () => void; searchOpen: boolean } = $props();
+  let { cartCount = 0, onpending, oncatalog, oncart, onsearch, searchOpen, active = 'inicio', searchControls = 'home-search' }: {
+    cartCount?: number;
+    onpending: (view: string) => void;
+    oncatalog?: () => void;
+    oncart?: () => void;
+    onsearch: () => void;
+    searchOpen: boolean;
+    active?: 'inicio' | 'catalogo';
+    searchControls?: string;
+  } = $props();
+  const accountName = sessionStorage.getItem('dulcepack-user-name');
+
+  function openAccount() {
+    history.pushState({}, '', '/iniciar-sesion');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }
 </script>
 
 <header class="site-header container">
-  <a class="brand" href="#inicio" aria-label="DulcePack, inicio"><span class="brand-dot" aria-hidden="true"></span>DulcePack</a>
+  <a class="brand" href={active === 'inicio' ? '#inicio' : '/'} aria-label="DulcePack, inicio"><span class="brand-dot" aria-hidden="true"></span>DulcePack</a>
   <nav aria-label="Navegación principal">
-    <a href="#inicio" aria-current="page">Inicio</a>
-    <button type="button" onclick={() => onpending('Catálogo')}>Catálogo</button>
-    <a href="#promociones">Promociones</a>
+    <a href="/" aria-current={active === 'inicio' ? 'page' : undefined}>Inicio</a>
+    <button type="button" aria-current={active === 'catalogo' ? 'page' : undefined} onclick={() => oncatalog ? oncatalog() : onpending('Catálogo')}>Catálogo</button>
+    <a href={active === 'inicio' ? '#promociones' : '/#promociones'}>Promociones</a>
   </nav>
   <div class="header-actions">
-    <button id="search-trigger" class="search" type="button" aria-label="Buscar antojos" aria-expanded={searchOpen} aria-controls="home-search" onclick={onsearch}><Icon name="search" /><span>Buscar antojos</span></button>
-    <button class="account" type="button" onclick={() => onpending('Mi cuenta')}><span>Mi cuenta</span><Icon name="user" /></button>
-    <button class="cart" type="button" onclick={() => onpending('Carrito')} aria-label={`Carrito de demostración: ${cartCount} ${cartCount === 1 ? 'producto' : 'productos'}`}><Icon name="cart" /><span class="cart-count">{cartCount}</span></button>
+    <button id="search-trigger" class="search" type="button" aria-label="Buscar antojos" aria-expanded={searchOpen} aria-controls={searchControls} onclick={onsearch}><Icon name="search" /><span>Buscar antojos</span></button>
+    <button class="account" type="button" aria-label={accountName ? `Cuenta de ${accountName}` : 'Mi cuenta'} onclick={openAccount}><span>{accountName ?? 'Mi cuenta'}</span><Icon name="user" /></button>
+    <button class="cart" type="button" onclick={() => oncart ? oncart() : onpending('Carrito')} aria-label={`Carrito de demostración: ${cartCount} ${cartCount === 1 ? 'producto' : 'productos'}`}><Icon name="cart" /><span class="cart-count">{cartCount}</span></button>
   </div>
 </header>
 
@@ -23,7 +38,7 @@
   .brand-dot { width: 34px; height: 34px; background: var(--pink); border-radius: 50%; }
   nav { display: flex; align-items: center; gap: 24px; }
   nav a, nav button, .account { color: var(--ink); font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; }
-  nav a[aria-current] { color: var(--purple); }
+  nav a[aria-current], nav button[aria-current] { color: var(--purple); }
   .header-actions { display: flex; align-items: center; gap: 20px; margin-left: auto; }
   button { border: 0; background: none; padding: 8px 0; min-height: 44px; }
   .search { display: flex; align-items: center; gap: 10px; min-width: 220px; padding: 8px 16px; border-radius: 12px; background: var(--lavender); color: var(--muted); font-size: 13px; text-align: left; }
@@ -31,7 +46,7 @@
   .cart { display: flex; align-items: center; gap: 8px; color: var(--purple); }
   .cart-count { display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 5px; border-radius: 50px; background: var(--yellow); color: var(--ink); font-weight: 700; font-size: 12px; }
   @media (max-width: 1050px) { .search { min-width: auto; background: transparent; padding: 8px; } .search span { display: none; } nav { gap: 16px; } .site-header { gap: 20px; } }
-  @media (max-width: 760px) { nav { display: none; } .account { display: none; } }
+  @media (max-width: 760px) { nav { display: none; } .account span { display: none; } .account :global(svg) { display: block; } }
   @media (max-width: 600px) {
     .site-header { margin-top: 16px; margin-bottom: 20px; min-height: 64px; padding: 8px 16px; border-radius: 18px; }
     .brand { font-size: 24px; } .brand-dot { display: none; }
