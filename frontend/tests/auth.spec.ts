@@ -14,6 +14,18 @@ test('Mi cuenta abre el inicio de sesión y permite entrar en modo demostración
   if (!isMobile) await expect(page.getByRole('button', { name: 'Cuenta de julia' })).toBeVisible();
 });
 
+test('una sesión de cliente se puede cerrar desde la cabecera', async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('dulcepack-user-name', 'Julia'));
+  await page.goto('/');
+
+  await expect(page.getByRole('button', { name: 'Cerrar sesión' })).toBeVisible();
+  await page.getByRole('button', { name: 'Cerrar sesión' }).click();
+
+  await expect(page.getByRole('button', { name: 'Mi cuenta', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Cerrar sesión' })).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem('dulcepack-user-name'))).toBeNull();
+});
+
 test('el registro valida la confirmación de contraseña y crea una sesión', async ({ page, isMobile }) => {
   await page.goto('/iniciar-sesion');
   await page.getByRole('button', { name: '¿No tienes cuenta? Regístrate' }).click();

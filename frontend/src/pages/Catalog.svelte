@@ -16,6 +16,7 @@
   let mobileCategory = $state<'todos' | 'dulces' | 'botanas'>('todos');
   let searchInput: HTMLInputElement;
   const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es-MX').trim();
+  let searchActive = $derived(normalize(query) !== '');
   let filteredProducts = $derived(catalogProducts.filter(product => {
     const kindMatches = kinds.length === 0 || (product.kind && kinds.includes(product.kind));
     const flavorMatches = flavors.length === 0 || (product.flavor && flavors.includes(product.flavor));
@@ -74,17 +75,17 @@
     <label for="product-search">Buscar productos</label>
     <div><input id="product-search" bind:this={searchInput} type="search" bind:value={query} placeholder="Busca por nombre o descripción" onkeydown={(event) => { if (event.key === 'Escape') void toggleSearch(); }} /><button type="button" onclick={toggleSearch}>Cerrar</button></div>
   </div>
-  <header class="catalog-heading">
+  <header class="catalog-heading" hidden={searchActive}>
     <h1>Catálogo de antojos</h1>
     <p>Filtra por tipo, sabor o presupuesto y encuentra tu paquete ideal.</p>
   </header>
-  <div class="mobile-categories" aria-label="Categorías rápidas">
+  <div class="mobile-categories" aria-label="Categorías rápidas" hidden={searchActive}>
     <button type="button" aria-pressed={mobileCategory === 'todos'} onclick={() => setMobileCategory('todos')}>Todos</button>
     <button type="button" aria-pressed={mobileCategory === 'dulces'} onclick={() => setMobileCategory('dulces')}>Dulces</button>
     <button type="button" aria-pressed={mobileCategory === 'botanas'} onclick={() => setMobileCategory('botanas')}>Botanas</button>
   </div>
-  <div class="catalog-layout">
-    <aside aria-label="Filtros del catálogo">
+  <div class:search-mode={searchActive} class="catalog-layout">
+    <aside aria-label="Filtros del catálogo" hidden={searchActive}>
       <h2>Filtros</h2>
       <fieldset>
         <legend>Categoría</legend>
@@ -106,7 +107,7 @@
       </fieldset>
       <button class="clear" type="button" onclick={clearFilters}>Limpiar filtros</button>
     </aside>
-    <section class="product-grid" aria-label="Productos del catálogo">
+    <section class:search-results={searchActive} class="product-grid" aria-label="Productos del catálogo">
       {#each filteredProducts as product (product.id)}
         <ProductCard {product} onadd={addProduct} onselect={openProduct} />
       {:else}
@@ -128,6 +129,7 @@
   h1 { margin: 0 0 12px; font: 600 36px/1.15 'Fredoka Variable', sans-serif; }
   .catalog-heading p { color: var(--muted); }
   .catalog-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 36px; align-items: start; }
+  .catalog-layout.search-mode { display: block; }
   .mobile-categories { display: none; }
   aside { min-height: 520px; padding: 24px; border-radius: 16px; background: white; box-shadow: var(--shadow); }
   aside h2 { margin-top: 0; font: 600 20px 'Fredoka Variable', sans-serif; }
@@ -137,6 +139,7 @@
   input { accent-color: var(--purple); }
   .clear { width: 100%; min-height: 44px; border: 1px solid var(--purple); border-radius: 10px; background: white; color: var(--purple); font-weight: 700; }
   .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .product-grid.search-results { grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 320px)); }
   .empty { grid-column: 1 / -1; padding: 48px 20px; border: 1px dashed var(--purple); border-radius: 16px; text-align: center; }
   .notice { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); padding: 14px 20px; border-radius: 14px; background: var(--ink); color: white; z-index: 20; }
   @media (max-width: 900px) { .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

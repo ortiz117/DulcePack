@@ -11,11 +11,16 @@
     active?: 'inicio' | 'catalogo';
     searchControls?: string;
   } = $props();
-  const accountName = sessionStorage.getItem('dulcepack-user-name');
+  let accountName = $state<string | null>(sessionStorage.getItem('dulcepack-user-name'));
 
   function openAccount() {
     history.pushState({}, '', '/iniciar-sesion');
     window.dispatchEvent(new PopStateEvent('popstate'));
+  }
+
+  function logout() {
+    sessionStorage.removeItem('dulcepack-user-name');
+    accountName = null;
   }
 </script>
 
@@ -29,6 +34,7 @@
   <div class="header-actions">
     <button id="search-trigger" class="search" type="button" aria-label="Buscar antojos" aria-expanded={searchOpen} aria-controls={searchControls} onclick={onsearch}><Icon name="search" /><span>Buscar antojos</span></button>
     <button class="account" type="button" aria-label={accountName ? `Cuenta de ${accountName}` : 'Mi cuenta'} onclick={openAccount}><span>{accountName ?? 'Mi cuenta'}</span><Icon name="user" /></button>
+    {#if accountName}<button class="logout" type="button" onclick={logout}>Cerrar sesión</button>{/if}
     <button class="cart" type="button" onclick={() => oncart ? oncart() : onpending('Carrito')} aria-label={`Carrito de demostración: ${cartCount} ${cartCount === 1 ? 'producto' : 'productos'}`}><Icon name="cart" /><span class="cart-count">{cartCount}</span></button>
   </div>
 </header>
@@ -43,10 +49,11 @@
   button { border: 0; background: none; padding: 8px 0; min-height: 44px; }
   .search { display: flex; align-items: center; gap: 10px; min-width: 220px; padding: 8px 16px; border-radius: 12px; background: var(--lavender); color: var(--muted); font-size: 13px; text-align: left; }
   .account :global(svg) { display: none; }
+  .logout { color: var(--purple); font-size: 13px; font-weight: 800; white-space: nowrap; }
   .cart { display: flex; align-items: center; gap: 8px; color: var(--purple); }
   .cart-count { display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 5px; border-radius: 50px; background: var(--yellow); color: var(--ink); font-weight: 700; font-size: 12px; }
   @media (max-width: 1050px) { .search { min-width: auto; background: transparent; padding: 8px; } .search span { display: none; } nav { gap: 16px; } .site-header { gap: 20px; } }
-  @media (max-width: 760px) { nav { display: none; } .account span { display: none; } .account :global(svg) { display: block; } }
+  @media (max-width: 760px) { nav { display: none; } .account span { display: none; } .account :global(svg) { display: block; } .logout { font-size: 12px; } }
   @media (max-width: 600px) {
     .site-header { margin-top: 16px; margin-bottom: 20px; min-height: 64px; padding: 8px 16px; border-radius: 18px; }
     .header-actions { gap: 4px; } .search { padding: 8px; color: var(--muted); }

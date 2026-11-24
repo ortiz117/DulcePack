@@ -43,11 +43,19 @@ test('usuarios exige sesión y se abre desde la navegación administrativa', asy
   await expect(page.getByRole('button', { name: 'Usuarios' })).toHaveAttribute('aria-current', 'page');
 });
 
-test('el detalle de pedido entrega feedback accesible', async ({ page }) => {
+test('el detalle de pedido muestra productos, cliente y total en un diálogo', async ({ page }) => {
   await enableAdminSession(page);
   await page.goto('/admin/pedidos');
   await page.getByRole('button', { name: 'Ver detalle de DP-1048' }).click();
-  await expect(page.getByRole('status')).toContainText('Detalle del pedido DP-1048');
+
+  const detail = page.getByRole('dialog', { name: 'Detalle del pedido DP-1048' });
+  await expect(detail).toBeVisible();
+  await expect(detail.getByText('Isaac Ortiz')).toBeVisible();
+  await expect(detail.getByText('Pack Fiesta Dulce')).toBeVisible();
+  await expect(detail.getByText('Box Picosita')).toBeVisible();
+  await expect(detail.getByText('$635')).toBeVisible();
+  await detail.getByRole('button', { name: 'Cerrar detalle' }).click();
+  await expect(detail).not.toBeVisible();
 });
 
 test('pedidos y usuarios son responsive y cumplen WCAG AA', async ({ page }) => {

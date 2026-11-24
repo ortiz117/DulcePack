@@ -17,6 +17,9 @@ test('la búsqueda local admite acentos y muestra un estado vacío recuperable',
   await search.fill(' ACIDAS ');
   await expect(page.getByRole('article')).toHaveCount(1);
   await expect(page.getByRole('heading', { name: 'Mix Gomitas', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Antojos para cada momento' })).not.toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Explora por antojo' })).not.toBeVisible();
+  await expect(page.getByRole('complementary', { name: /Beneficios previstos/ })).not.toBeVisible();
   await search.fill('producto-inexistente');
   await expect(page.getByRole('article')).toHaveCount(0);
   await expect(page.getByText('No encontramos favoritos con esos filtros.')).toBeVisible();
