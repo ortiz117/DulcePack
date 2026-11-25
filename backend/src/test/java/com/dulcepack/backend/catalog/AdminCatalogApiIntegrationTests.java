@@ -70,7 +70,7 @@ class AdminCatalogApiIntegrationTests {
                 }
                 """);
         MockMultipartFile image = new MockMultipartFile("image", "pack-fiesta.png", "image/png",
-                "imagen de prueba".getBytes());
+                pngBytes());
 
         mockMvc.perform(multipart("/api/admin/products")
                         .file(product)
@@ -96,7 +96,7 @@ class AdminCatalogApiIntegrationTests {
         mockMvc.perform(get("/api/catalog/products/pack-fiesta-dulce/image"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.IMAGE_PNG))
-                .andExpect(content().bytes("imagen de prueba".getBytes()));
+                .andExpect(content().bytes(pngBytes()));
     }
 
     @Test
@@ -151,6 +151,13 @@ class AdminCatalogApiIntegrationTests {
                 """.formatted(name, price, stock, category));
         mockMvc.perform(multipart("/api/admin/products").file(product).cookie(admin).with(csrf()))
                 .andExpect(status().isCreated());
+    }
+
+    private static byte[] pngBytes() {
+        return new byte[] {
+                (byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n',
+                0x00, 0x00, 0x00, 0x0d, 'I', 'H', 'D', 'R'
+        };
     }
 
     private MockMultipartFile jsonPart(String json) {

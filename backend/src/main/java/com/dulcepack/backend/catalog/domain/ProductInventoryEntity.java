@@ -61,4 +61,9 @@ public class ProductInventoryEntity {
         this.available = available;
         this.updatedAt = now;
     }
+
+    public void setMinimumStock(int minimumStock, Instant now) {
+        this.minimumStock = minimumStock;
+        this.updatedAt = now;
+    }
 }

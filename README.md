@@ -6,7 +6,7 @@ DulcePack es un proyecto académico de comercio electrónico para paquetes de du
 
 El frontend del prototipo está implementado con todas las pantallas identificadas en los diseños de Figma.
 
-El proyecto funciona únicamente con datos mock y estado local del navegador. Todavía no incluye API, backend, base de datos, pagos reales, persistencia de pedidos ni autenticación segura de servidor.
+El frontend conserva datos mock para el carrito, pedidos y métricas, mientras que el backend ya expone autenticación segura, usuarios, catálogo e inventario con PostgreSQL y Flyway. Los pagos y la persistencia de pedidos todavía no están implementados.
 
 ## Funcionalidades implementadas
 
@@ -61,7 +61,7 @@ DulcePack/
 │   ├── design-review/
 │   ├── package.json
 │   └── playwright.config.ts
-├── backend/                 # Reservado; todavía vacío
+├── backend/                 # API Spring Boot: identidad, catálogo e inventario
 ├── README.md
 └── RESUME.md
 ```
@@ -142,11 +142,11 @@ npx playwright install chromium
 
 - Todos los productos, usuarios, pedidos, métricas y credenciales son mock.
 - El carrito y las sesiones son efímeros y se reinician al recargar o cerrar la sesión correspondiente.
-- Crear o editar productos no persiste información.
+- El panel admin todavía usa datos mock; la API ya persiste productos, inventario e imágenes en PostgreSQL.
 - El checkout no procesa pagos ni crea pedidos reales.
-- No existe backend ni base de datos.
+- El backend implementa identidad, catálogo e inventario; pedidos, carrito y pagos siguen siendo mock.
 - La aplicación se ha verificado principalmente con Chromium automatizado; falta validación manual en otros navegadores y dispositivos físicos.
 
 ## Próxima etapa
 
-La siguiente fase técnica sería crear el backend con Spring Boot y PostgreSQL, definir contratos de API y reemplazar gradualmente los datos mock. Esa fase debe planificarse antes de implementar autenticación, inventario, pedidos o pagos reales.
+La siguiente fase técnica es conectar el frontend a los endpoints del backend mediante `src/lib/api/catalog.ts`, y posteriormente implementar carrito, pedidos y pagos reales.

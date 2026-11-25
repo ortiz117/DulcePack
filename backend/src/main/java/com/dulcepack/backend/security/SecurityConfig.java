@@ -1,9 +1,11 @@
 package com.dulcepack.backend.security;
 
 import java.time.Clock;
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,12 +22,24 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http,
             SessionAuthenticationFilter sessionAuthenticationFilter,
-            CsrfCookieFilter csrfCookieFilter) throws Exception {
+            CsrfCookieFilter csrfCookieFilter,
+            CorsProperties corsProperties) throws Exception {
         CookieCsrfTokenRepository csrfRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         csrfRepository.setCookiePath("/");
         XorCsrfTokenRequestAttributeHandler csrfHandler = new XorCsrfTokenRequestAttributeHandler();
         csrfHandler.setCsrfRequestAttributeName(null);
         http
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration configuration = new CorsConfiguration();
+                    configuration.setAllowedOrigins(corsProperties.allowedOrigins());
+                    configuration.setAllowedMethods(
+                            List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+                    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type",
+                            "X-CSRF-TOKEN", "X-XSRF-TOKEN"));
+                    configuration.setAllowCredentials(true);
+                    configuration.setMaxAge(3600L);
+                    return configuration;
+                }))
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(csrfRepository)
                         .csrfTokenRequestHandler(csrfHandler)

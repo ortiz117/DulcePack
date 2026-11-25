@@ -17,7 +17,6 @@ public record AdminProductResponse(
         int stock,
         int minimumStock,
         String status,
-        long version,
         ProductImageResponse image,
         Instant updatedAt) {
 }

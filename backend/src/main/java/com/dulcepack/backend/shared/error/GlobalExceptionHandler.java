@@ -11,6 +11,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,12 +45,27 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<ApiErrorResponse> handleIntegrity(DataIntegrityViolationException exception,
             HttpServletRequest request) {
+        log.warn("Data conflict for {}", request.getRequestURI(), exception);
         return response(HttpStatus.CONFLICT, "DATA_CONFLICT", "The request conflicts with existing data", request, Map.of());
     }
 
     @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
     ResponseEntity<ApiErrorResponse> handleMalformed(Exception exception, HttpServletRequest request) {
         return response(HttpStatus.BAD_REQUEST, "MALFORMED_REQUEST", "The request could not be parsed", request, Map.of());
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    ResponseEntity<ApiErrorResponse> handleMissingPart(MissingServletRequestPartException exception,
+            HttpServletRequest request) {
+        return response(HttpStatus.BAD_REQUEST, "MALFORMED_REQUEST",
+                "A required multipart part is missing", request, Map.of());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    ResponseEntity<ApiErrorResponse> handleUploadTooLarge(MaxUploadSizeExceededException exception,
+            HttpServletRequest request) {
+        return response(HttpStatus.BAD_REQUEST, "PRODUCT_IMAGE_TOO_LARGE",
+                "Product image exceeds 5 MB", request, Map.of());
     }
 
     @ExceptionHandler(Exception.class)

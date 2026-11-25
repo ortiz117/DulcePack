@@ -2,6 +2,7 @@ package com.dulcepack.backend.catalog.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
@@ -12,6 +13,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -33,6 +35,9 @@ import com.dulcepack.backend.shared.error.ApiException;
 @Service
 public class AdminCatalogService {
     private static final long MAX_IMAGE_BYTES = 5L * 1024 * 1024;
+    private static final byte[] PNG_SIGNATURE = new byte[] {
+            (byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n'};
+    private static final byte[] JPEG_SIGNATURE = new byte[] {(byte) 0xff, (byte) 0xd8, (byte) 0xff};
 
     private final ProductRepository products;
     private final ProductCategoryRepository categories;
@@ -51,7 +56,7 @@ public class AdminCatalogService {
 
     @Transactional(readOnly = true)
     public List<AdminProductResponse> list(String query) {
-        return products.search(normalizeNullable(query), null, null, null, null).stream()
+        return products.search(CatalogService.escapeLike(normalizeNullable(query)), null, null, null, null).stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -74,11 +79,18 @@ public class AdminCatalogService {
         ProductFlavor flavor = parseFlavor(request.flavor());
         Instant now = clock.instant();
         String name = request.name().trim();
-        ProductEntity product = products.save(new ProductEntity(UUID.randomUUID(), slug, name, shortName(name),
-                request.description().trim(), searchText(name, request.description()), request.price(), category,
-                flavor, serializeTags(request.tags()), now));
+        ProductEntity product;
+        try {
+            product = products.saveAndFlush(new ProductEntity(UUID.randomUUID(), slug, name, shortName(name),
+                    request.description().trim(), searchText(name, request.description()), request.price(), category,
+                    flavor, serializeTags(request.tags()), now));
+        } catch (DataIntegrityViolationException exception) {
+            throw new ApiException(HttpStatus.CONFLICT, "PRODUCT_ALREADY_EXISTS",
+                    "A product with this name already exists");
+        }
 
-        ProductInventoryEntity productInventory = new ProductInventoryEntity(product, request.stock(), 0, now);
+        ProductInventoryEntity productInventory = new ProductInventoryEntity(product, request.stock(),
+                minimumStock(request), now);
         inventory.save(productInventory);
         product.attachInventory(productInventory);
 
@@ -100,15 +112,17 @@ public class AdminCatalogService {
         product.update(name, shortName(name), request.description().trim(), searchText(name, request.description()),
                 request.price(), category, flavor, serializeTags(request.tags()), now);
         product.getInventory().setAvailable(request.stock(), now);
+        product.getInventory().setMinimumStock(minimumStock(request), now);
 
         if (image != null && !image.isEmpty()) {
-            validateImage(image);
             ProductImageEntity current = images.findByProductId(product.getId()).orElse(null);
             if (current == null) {
                 current = images.save(createImage(product, image, now));
                 product.attachImage(current);
             } else {
-                current.replace(safeFileName(image), image.getContentType(), readImage(image), now);
+                byte[] content = readImage(image);
+                validateImage(image, content);
+                current.replace(safeFileName(image), imageContentType(image), content, now);
             }
         }
         return toResponse(product);
@@ -121,6 +135,15 @@ public class AdminCatalogService {
         return new ProductImageContent(image.getFileName(), image.getContentType(), image.getContent());
     }
 
+    @Transactional
+    public void delete(String slug) {
+        ProductEntity product = products.findBySlugForUpdate(normalizeSlug(slug))
+                .orElseThrow(this::productNotFound);
+        images.deleteByProductId(product.getId());
+        inventory.deleteById(product.getId());
+        products.deleteById(product.getId());
+    }
+
     private ProductEntity findProduct(String slug) {
         return products.findBySlug(normalizeSlug(slug)).orElseThrow(this::productNotFound);
     }
@@ -130,18 +153,66 @@ public class AdminCatalogService {
     }
 
     private ProductImageEntity createImage(ProductEntity product, MultipartFile image, Instant now) {
-        validateImage(image);
-        return new ProductImageEntity(UUID.randomUUID(), product, safeFileName(image), image.getContentType(),
-                readImage(image), now);
+        byte[] content = readImage(image);
+        validateImage(image, content);
+        return new ProductImageEntity(UUID.randomUUID(), product, safeFileName(image),
+                imageContentType(image), content, now);
     }
 
-    private void validateImage(MultipartFile image) {
-        if (image.getContentType() == null || !image.getContentType().startsWith("image/")) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_PRODUCT_IMAGE", "Selected file must be an image");
+    private void validateImage(MultipartFile image, byte[] content) {
+        if (!hasValidSignature(imageContentType(image), content)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_PRODUCT_IMAGE",
+                    "Selected file must be a supported PNG, JPEG, GIF or WEBP image");
         }
-        if (image.getSize() > MAX_IMAGE_BYTES) {
+        if (content.length > MAX_IMAGE_BYTES) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "PRODUCT_IMAGE_TOO_LARGE", "Product image exceeds 5 MB");
         }
+    }
+
+    private String imageContentType(MultipartFile image) {
+        String value = image.getContentType();
+        if (!StringUtils.hasText(value)) {
+            return "";
+        }
+        int separator = value.indexOf(';');
+        return (separator < 0 ? value : value.substring(0, separator)).trim().toLowerCase(Locale.ROOT);
+    }
+
+    private boolean hasValidSignature(String contentType, byte[] content) {
+        if (content == null || content.length < 12) {
+            return false;
+        }
+        return switch (contentType) {
+            case "image/png" -> startsWith(content, PNG_SIGNATURE);
+            case "image/jpeg" -> startsWith(content, JPEG_SIGNATURE);
+            case "image/gif" -> startsWith(content, "GIF87a") || startsWith(content, "GIF89a");
+            case "image/webp" -> startsWith(content, "RIFF") && matches(content, 8, "WEBP");
+            default -> false;
+        };
+    }
+
+    private boolean startsWith(byte[] content, byte[] signature) {
+        return matches(content, 0, signature);
+    }
+
+    private boolean startsWith(byte[] content, String signature) {
+        return matches(content, 0, signature.getBytes(StandardCharsets.US_ASCII));
+    }
+
+    private boolean matches(byte[] content, int offset, byte[] expected) {
+        if (content.length < offset + expected.length) {
+            return false;
+        }
+        for (int index = 0; index < expected.length; index++) {
+            if (content[offset + index] != expected[index]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean matches(byte[] content, int offset, String expected) {
+        return matches(content, offset, expected.getBytes(StandardCharsets.US_ASCII));
     }
 
     private byte[] readImage(MultipartFile image) {
@@ -157,7 +228,14 @@ public class AdminCatalogService {
         if (!StringUtils.hasText(original)) {
             return "product-image";
         }
-        return Path.of(original).getFileName().toString();
+        String normalized = original.replace('\\', '/');
+        String fileName = Path.of(normalized).getFileName().toString()
+                .replaceAll("[\\x00-\\x1f\\x7f\"]", "")
+                .trim();
+        if (!StringUtils.hasText(fileName)) {
+            return "product-image";
+        }
+        return fileName.length() <= 255 ? fileName : fileName.substring(fileName.length() - 255);
     }
 
     private com.dulcepack.backend.catalog.domain.ProductCategoryEntity findCategory(String value) {
@@ -187,11 +265,15 @@ public class AdminCatalogService {
         return new AdminProductResponse(product.getSlug(), product.getName(), product.getShortName(),
                 product.getDescription(), product.getPrice(), product.getCurrency(), product.getCategory().getName(),
                 parseTags(product.getTags()), flavor, productInventory.getAvailable(), productInventory.getMinimumStock(),
-                productInventory.getStatus().name(), productInventory.getVersion(), image, product.getUpdatedAt());
+                productInventory.getStatus().name(), image, product.getUpdatedAt());
     }
 
     private String searchText(String name, String description) {
         return CatalogService.normalizeSearchText(name + " " + description);
+    }
+
+    private int minimumStock(UpsertProductRequest request) {
+        return request.minimumStock() == null ? 0 : request.minimumStock();
     }
 
     private String shortName(String name) {

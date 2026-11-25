@@ -14,6 +14,7 @@ public record UpsertProductRequest(
         @NotBlank @Size(max = 1000) String description,
         @NotNull @DecimalMin(value = "0.01") BigDecimal price,
         @NotNull @Min(0) Integer stock,
+        @Min(0) Integer minimumStock,
         @NotBlank @Size(max = 50) String category,
         @NotNull @Size(max = 20) List<@NotBlank @Size(max = 50) String> tags,
         @Size(max = 20) String flavor) {

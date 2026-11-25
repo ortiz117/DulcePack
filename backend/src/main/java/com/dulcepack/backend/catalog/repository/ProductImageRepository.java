@@ -11,4 +11,6 @@ public interface ProductImageRepository extends JpaRepository<ProductImageEntity
     Optional<ProductImageEntity> findByProductSlug(String slug);
 
     Optional<ProductImageEntity> findByProductId(UUID productId);
+
+    void deleteByProductId(UUID productId);
 }

@@ -65,6 +65,30 @@ export PASSWORD_RESET_BASE_URL=https://app.example.com/reset-password
 
 Las sesiones usan cookies HttpOnly. Los endpoints autenticados que modifican estado requieren el token de la cookie `XSRF-TOKEN` en el encabezado `X-XSRF-TOKEN`.
 
+## Endpoints de catálogo e inventario
+
+Públicos:
+
+- `GET /api/catalog/categories` — devuelve `id`, `slug`, `name` y `shortName`.
+- `GET /api/catalog/products` — filtros opcionales `query`, `category`, `flavor`, `minPrice`, `maxPrice`.
+- `GET /api/catalog/products/page` — misma búsqueda con `page` y `size` (máximo 100).
+- `GET /api/catalog/products/{slug}`
+- `GET /api/catalog/products/{slug}/image` — imagen raster con `nosniff` y CSP `sandbox`.
+
+Administrativos (requieren rol `ADMIN`):
+
+- `GET /api/admin/products`
+- `GET /api/admin/products/{slug}`
+- `POST /api/admin/products` — `multipart/form-data` con parte JSON `product` y parte opcional `image`.
+- `PUT /api/admin/products/{slug}` — mismo formato.
+- `DELETE /api/admin/products/{slug}`
+
+El campo `minimumStock` de `product` es opcional y permite publicar umbrales de stock bajo. Las imágenes aceptadas son PNG, JPEG, GIF y WEBP; se validan por firma de bytes, con un límite de 5 MB. El slug se deriva del nombre en la creación y permanece estable en las ediciones.
+
+## CORS
+
+Los orígenes permitidos se configuran con `CORS_ALLOWED_ORIGINS` (por defecto `http://localhost:5173,http://127.0.0.1:5173`). El frontend consume la API desde `src/lib/api/catalog.ts`.
+
 ## Pruebas y compilación
 
 ```bash
