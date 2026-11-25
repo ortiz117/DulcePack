@@ -36,7 +36,7 @@ import jakarta.servlet.http.Cookie;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 class CatalogPostgreSqlIntegrationTests {
 
     private static final byte[] PNG = TestImages.png();

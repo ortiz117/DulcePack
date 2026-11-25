@@ -28,7 +28,7 @@ import com.dulcepack.backend.security.TokenService;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 class PasswordResetConcurrencyPostgreSqlIntegrationTests {
 
     @Container

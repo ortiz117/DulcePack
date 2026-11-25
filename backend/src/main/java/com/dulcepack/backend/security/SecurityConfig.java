@@ -67,7 +67,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/api/catalog/**", "/api/cart/**",
                                 "/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/users/**", "/api/orders/**").authenticated()
                         .anyRequest().denyAll())
                 .addFilterBefore(sessionAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(csrfCookieFilter, SessionAuthenticationFilter.class);

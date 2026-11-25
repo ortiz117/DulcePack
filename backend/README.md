@@ -85,6 +85,21 @@ Administrativos (requieren rol `ADMIN`):
 
 El campo `minimumStock` de `product` es opcional y permite publicar umbrales de stock bajo. Las imágenes aceptadas son PNG, JPEG y GIF; se validan por firma de bytes y por decodificación estructural completa (el formato declarado debe coincidir con el contenido decodificado, con un máximo de 20 megapíxeles y 5 MB). El slug se deriva del nombre en la creación y permanece estable en las ediciones.
 
+## Endpoints de pedidos y reportes
+
+Clientes autenticados:
+
+- `POST /api/orders` — crea un pedido con `productId`, `quantity` y cupón opcional; importes y envío se calculan en el servidor.
+- `GET /api/orders/{code}` — consulta un pedido propio mediante códigos `DP-000001` de seis o más dígitos.
+
+Administrativos (requieren rol `ADMIN`):
+
+- `GET /api/admin/orders?page=0&size=20`
+- `PATCH /api/admin/orders/{code}/status`
+- `GET /api/admin/reports/orders/summary`
+
+Cada pedido conserva una instantánea del nombre y precio de sus productos. El flujo permitido es `PENDING -> PREPARING -> SHIPPED -> DELIVERED`; los pedidos `PENDING` o `PREPARING` también pueden cancelarse.
+
 ## CORS
 
 Los orígenes permitidos se configuran con `CORS_ALLOWED_ORIGINS` (por defecto `http://localhost:5173,http://127.0.0.1:5173`). El frontend consume la API desde `src/lib/api/catalog.ts`.
