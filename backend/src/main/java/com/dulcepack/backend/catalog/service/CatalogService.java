@@ -29,6 +29,8 @@ import jakarta.persistence.criteria.Predicate;
 
 @Service
 public class CatalogService {
+    public static final int MAX_UNPAGED_RESULTS = 100;
+
     private final ProductRepository products;
     private final ProductCategoryRepository categories;
 
@@ -44,7 +46,7 @@ public class CatalogService {
         ProductFlavor parsedFlavor = parseFlavor(flavor);
         return products.search(escapeLike(normalizeNullable(query)), normalizeNullable(category), parsedFlavor,
                 minPrice, maxPrice)
-                .stream().map(this::toResponse).toList();
+                .stream().limit(MAX_UNPAGED_RESULTS).map(this::toResponse).toList();
     }
 
     @Transactional(readOnly = true)

@@ -1,6 +1,7 @@
 package com.dulcepack.backend.catalog.service;
 
 import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -9,6 +10,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -18,6 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import java.util.Iterator;
 
 import com.dulcepack.backend.catalog.api.AdminProductResponse;
 import com.dulcepack.backend.catalog.api.ProductImageResponse;
@@ -35,6 +42,9 @@ import com.dulcepack.backend.shared.error.ApiException;
 @Service
 public class AdminCatalogService {
     private static final long MAX_IMAGE_BYTES = 5L * 1024 * 1024;
+    private static final long MAX_IMAGE_PIXELS = 20_000_000L;
+    private static final Map<String, String> IMAGE_FORMATS = Map.of(
+            "image/png", "png", "image/jpeg", "jpeg", "image/gif", "gif");
     private static final byte[] PNG_SIGNATURE = new byte[] {
             (byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n'};
     private static final byte[] JPEG_SIGNATURE = new byte[] {(byte) 0xff, (byte) 0xd8, (byte) 0xff};
@@ -57,6 +67,7 @@ public class AdminCatalogService {
     @Transactional(readOnly = true)
     public List<AdminProductResponse> list(String query) {
         return products.search(CatalogService.escapeLike(normalizeNullable(query)), null, null, null, null).stream()
+                .limit(CatalogService.MAX_UNPAGED_RESULTS)
                 .map(this::toResponse)
                 .toList();
     }
@@ -162,10 +173,45 @@ public class AdminCatalogService {
     private void validateImage(MultipartFile image, byte[] content) {
         if (!hasValidSignature(imageContentType(image), content)) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_PRODUCT_IMAGE",
-                    "Selected file must be a supported PNG, JPEG, GIF or WEBP image");
+                    "Selected file must be a supported PNG, JPEG or GIF image");
+        }
+        if (!hasValidStructure(imageContentType(image), content)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_PRODUCT_IMAGE",
+                    "Selected file is not a decodable image of the declared type");
         }
         if (content.length > MAX_IMAGE_BYTES) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "PRODUCT_IMAGE_TOO_LARGE", "Product image exceeds 5 MB");
+        }
+    }
+
+    private boolean hasValidStructure(String contentType, byte[] content) {
+        String expectedFormat = IMAGE_FORMATS.get(contentType);
+        if (expectedFormat == null) {
+            return false;
+        }
+        ImageReader reader = null;
+        try (ImageInputStream stream = ImageIO.createImageInputStream(new ByteArrayInputStream(content))) {
+            if (stream == null) {
+                return false;
+            }
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(stream);
+            if (!readers.hasNext()) {
+                return false;
+            }
+            reader = readers.next();
+            if (!expectedFormat.equalsIgnoreCase(reader.getFormatName())) {
+                return false;
+            }
+            reader.setInput(stream);
+            int width = reader.getWidth(0);
+            int height = reader.getHeight(0);
+            return width > 0 && height > 0 && (long) width * height <= MAX_IMAGE_PIXELS;
+        } catch (IOException exception) {
+            return false;
+        } finally {
+            if (reader != null) {
+                reader.dispose();
+            }
         }
     }
 
@@ -186,7 +232,6 @@ public class AdminCatalogService {
             case "image/png" -> startsWith(content, PNG_SIGNATURE);
             case "image/jpeg" -> startsWith(content, JPEG_SIGNATURE);
             case "image/gif" -> startsWith(content, "GIF87a") || startsWith(content, "GIF89a");
-            case "image/webp" -> startsWith(content, "RIFF") && matches(content, 8, "WEBP");
             default -> false;
         };
     }

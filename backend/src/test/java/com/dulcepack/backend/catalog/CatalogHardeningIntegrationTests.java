@@ -36,10 +36,7 @@ import jakarta.servlet.http.Cookie;
 @ActiveProfiles("test")
 class CatalogHardeningIntegrationTests {
 
-    private static final byte[] PNG = new byte[] {
-            (byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n',
-            0x00, 0x00, 0x00, 0x0d, 'I', 'H', 'D', 'R'
-    };
+    private static final byte[] PNG = TestImages.png();
 
     @Autowired MockMvc mockMvc;
     @Autowired JdbcTemplate jdbcTemplate;

@@ -70,20 +70,20 @@ Las sesiones usan cookies HttpOnly. Los endpoints autenticados que modifican est
 Públicos:
 
 - `GET /api/catalog/categories` — devuelve `id`, `slug`, `name` y `shortName`.
-- `GET /api/catalog/products` — filtros opcionales `query`, `category`, `flavor`, `minPrice`, `maxPrice`.
+- `GET /api/catalog/products` — filtros opcionales `query`, `category`, `flavor`, `minPrice`, `maxPrice`; devuelve como máximo 100 resultados.
 - `GET /api/catalog/products/page` — misma búsqueda con `page` y `size` (máximo 100).
 - `GET /api/catalog/products/{slug}`
 - `GET /api/catalog/products/{slug}/image` — imagen raster con `nosniff` y CSP `sandbox`.
 
 Administrativos (requieren rol `ADMIN`):
 
-- `GET /api/admin/products`
+- `GET /api/admin/products` — devuelve como máximo 100 resultados; usa `GET /api/catalog/products/page` para recorrer el catálogo completo.
 - `GET /api/admin/products/{slug}`
 - `POST /api/admin/products` — `multipart/form-data` con parte JSON `product` y parte opcional `image`.
 - `PUT /api/admin/products/{slug}` — mismo formato.
 - `DELETE /api/admin/products/{slug}`
 
-El campo `minimumStock` de `product` es opcional y permite publicar umbrales de stock bajo. Las imágenes aceptadas son PNG, JPEG, GIF y WEBP; se validan por firma de bytes, con un límite de 5 MB. El slug se deriva del nombre en la creación y permanece estable en las ediciones.
+El campo `minimumStock` de `product` es opcional y permite publicar umbrales de stock bajo. Las imágenes aceptadas son PNG, JPEG y GIF; se validan por firma de bytes y por decodificación estructural completa (el formato declarado debe coincidir con el contenido decodificado, con un máximo de 20 megapíxeles y 5 MB). El slug se deriva del nombre en la creación y permanece estable en las ediciones.
 
 ## CORS
 
