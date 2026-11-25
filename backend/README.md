@@ -1,6 +1,37 @@
 # DulcePack Backend
 
-Base técnica del backend REST de DulcePack. Todavía no contiene entidades, controladores ni lógica de negocio.
+Backend REST de DulcePack. La primera vertical implementada cubre creación, consulta,
+administración y reporte resumido de pedidos.
+
+## Módulo de pedidos
+
+Endpoints disponibles:
+
+```text
+POST  /api/orders
+GET   /api/orders/{code}
+GET   /api/admin/orders?page=0&size=20
+PATCH /api/admin/orders/{code}/status
+GET   /api/admin/reports/orders/summary
+```
+
+El cliente envía únicamente `productId`, `quantity` y un `couponCode` opcional por
+pedido. Nombre, precio, envío y descuento se resuelven y calculan en el servidor;
+cada pedido conserva una instantánea del producto. Los códigos públicos utilizan
+el formato `DP-000001` y admiten seis o más dígitos.
+
+Flujo de estados permitido:
+
+```text
+PENDING -> PREPARING -> SHIPPED -> DELIVERED
+PENDING -> CANCELLED
+PREPARING -> CANCELLED
+```
+
+Las rutas administrativas requieren el rol `ADMIN`. El detalle de un pedido solo
+puede consultarlo su propietario autenticado o un administrador. La integración
+definitiva de identidad puede reemplazar la autenticación temporal sin acoplar el
+módulo de pedidos al catálogo ni a usuarios concretos.
 
 ## Requisitos
 
@@ -25,7 +56,8 @@ No se incluye ninguna contraseña en el repositorio.
 
 ### `test`
 
-Usa una base H2 en memoria y no requiere PostgreSQL. Flyway permanece desactivado hasta que existan migraciones compatibles con PostgreSQL.
+Usa una base H2 en memoria y no requiere PostgreSQL. Ejecuta las mismas migraciones
+Flyway que el perfil de desarrollo y valida el esquema con Hibernate.
 
 ## Verificación
 
