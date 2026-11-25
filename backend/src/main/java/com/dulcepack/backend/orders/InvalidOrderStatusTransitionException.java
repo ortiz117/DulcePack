@@ -1,12 +1,11 @@
 package com.dulcepack.backend.orders;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import com.dulcepack.backend.shared.error.ConflictException;
 
-@ResponseStatus(HttpStatus.CONFLICT)
-class InvalidOrderStatusTransitionException extends RuntimeException {
+class InvalidOrderStatusTransitionException extends ConflictException {
 
     InvalidOrderStatusTransitionException(OrderStatus current, OrderStatus next) {
-        super("Cannot change order status from %s to %s".formatted(current, next));
+        super("INVALID_ORDER_STATUS_TRANSITION",
+            "Cannot change order status from %s to %s".formatted(current, next));
     }
 }

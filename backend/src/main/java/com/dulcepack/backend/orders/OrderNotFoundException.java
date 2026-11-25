@@ -1,12 +1,10 @@
 package com.dulcepack.backend.orders;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import com.dulcepack.backend.shared.error.NotFoundException;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-class OrderNotFoundException extends RuntimeException {
+class OrderNotFoundException extends NotFoundException {
 
     OrderNotFoundException(String code) {
-        super("Order not found: " + code);
+        super("ORDER_NOT_FOUND", "Order not found: " + code);
     }
 }

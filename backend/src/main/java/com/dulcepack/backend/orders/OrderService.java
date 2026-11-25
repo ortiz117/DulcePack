@@ -7,10 +7,10 @@ import java.util.EnumMap;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+
+import com.dulcepack.backend.shared.error.BadRequestException;
 
 @Service
 class OrderService {
@@ -30,7 +30,7 @@ class OrderService {
     @Transactional
     OrderResponse create(CreateOrderRequest request, String ownerSubject) {
         if (ownerSubject == null || ownerSubject.length() > 254) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid authenticated subject");
+            throw new BadRequestException("INVALID_AUTHENTICATED_SUBJECT", "Invalid authenticated subject");
         }
         var resolvedItems = request.items().stream()
             .map(item -> new ResolvedItem(productCatalog.findRequired(item.productId().trim()), item.quantity()))
@@ -135,7 +135,7 @@ class OrderService {
             return BigDecimal.ZERO.setScale(2);
         }
         if (!couponCode.trim().equalsIgnoreCase("DULCE50")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown coupon");
+            throw new BadRequestException("UNKNOWN_COUPON", "Unknown coupon");
         }
         return DULCE50_DISCOUNT.min(payableBeforeDiscount);
     }

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:dulcepack;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:dulcepack;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;NON_KEYWORDS=USER
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -9,3 +9,11 @@ spring:
       ddl-auto: validate
   flyway:
     enabled: true
+
+app:
+  security:
+    secure-cookies: false
+    trust-forwarded-for: true
+    max-registration-requests: 100
+  mail:
+    enabled: false
