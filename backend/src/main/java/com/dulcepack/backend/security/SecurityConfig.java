@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.http.MediaType;
 
 @Configuration
@@ -23,11 +23,14 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http,
             SessionAuthenticationFilter sessionAuthenticationFilter,
             CsrfCookieFilter csrfCookieFilter,
-            CorsProperties corsProperties) throws Exception {
+            CorsProperties corsProperties,
+            SecurityProperties securityProperties) throws Exception {
         CookieCsrfTokenRepository csrfRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         csrfRepository.setCookiePath("/");
-        XorCsrfTokenRequestAttributeHandler csrfHandler = new XorCsrfTokenRequestAttributeHandler();
-        csrfHandler.setCsrfRequestAttributeName(null);
+        csrfRepository.setCookieCustomizer(cookie -> cookie
+                .secure(securityProperties.secureCookies())
+                .sameSite("Lax"));
+        CsrfTokenRequestAttributeHandler csrfHandler = new CsrfTokenRequestAttributeHandler();
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
@@ -61,7 +64,8 @@ public class SecurityConfig {
                             response.getWriter().write("{\"code\":\"FORBIDDEN\",\"message\":\"Access is denied\"}");
                         }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/api/catalog/**", "/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/catalog/**", "/api/cart/**",
+                                "/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/users/**").authenticated()
                         .anyRequest().denyAll())

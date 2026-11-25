@@ -89,6 +89,18 @@ El campo `minimumStock` de `product` es opcional y permite publicar umbrales de 
 
 Los orígenes permitidos se configuran con `CORS_ALLOWED_ORIGINS` (por defecto `http://localhost:5173,http://127.0.0.1:5173`). El frontend consume la API desde `src/lib/api/catalog.ts`.
 
+## Carrito y promociones
+
+El carrito es anónimo y se identifica con la cookie HttpOnly `DP_CART`; un mismo token nunca expone el carrito de otro cliente. Los precios, el envío y los descuentos se calculan siempre en el servidor a partir del catálogo real: el cliente solo envía el slug del producto y la cantidad.
+
+- `GET /api/cart` — resumen con `items`, `itemCount`, `subtotal`, `shipping`, `discount`, `total` y `couponCode`.
+- `POST /api/cart/items` — agrega `{productSlug, quantity}`; devuelve 201 y el resumen.
+- `PATCH /api/cart/items/{productSlug}` — cambia `{quantity}` (mínimo 1).
+- `DELETE /api/cart/items/{productSlug}` — elimina el artículo.
+- `POST /api/cart/coupon` — aplica `{code}`; `DELETE /api/cart/coupon` — lo retira.
+
+Reglas derivadas del frontend: envío de 79 MXN si hay artículos (0 si está vacío), cupón `DULCE50` con 50 MXN de descuento y total `max(0, subtotal + envío - descuento)`. Se configuran con `CART_SHIPPING_FEE` y `CART_DEFAULT_COUPON`. Las cantidades se validan contra el inventario y las reservas vigentes de todos los carritos, con bloqueo pesimista para evitar sobreasignación concurrente. Los carritos caducan a los 7 días de inactividad: sus reservas dejan de contar de inmediato y un barrido horario los elimina. Las mutaciones requieren CSRF. El adaptador TypeScript está en `frontend/src/lib/api/cart.ts`; la creación de pedidos pertenece al módulo de pedidos.
+
 ## Pruebas y compilación
 
 ```bash
