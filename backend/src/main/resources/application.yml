@@ -22,6 +22,7 @@ app:
   cart:
     shipping-fee: ${CART_SHIPPING_FEE:79.00}
     default-coupon: ${CART_DEFAULT_COUPON:DULCE50}
+    reservation-minutes: ${CART_RESERVATION_MINUTES:30}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
   security:
@@ -40,6 +41,9 @@ app:
     max-origin-password-reset-requests: ${MAX_ORIGIN_PASSWORD_RESET_REQUESTS:20}
     password-reset-window-minutes: ${PASSWORD_RESET_WINDOW_MINUTES:60}
     password-reset-block-minutes: ${PASSWORD_RESET_BLOCK_MINUTES:60}
+    max-cart-requests: ${MAX_CART_REQUESTS:60}
+    cart-window-minutes: ${CART_WINDOW_MINUTES:60}
+    cart-block-minutes: ${CART_BLOCK_MINUTES:60}
     trust-forwarded-for: ${TRUST_FORWARDED_FOR:false}
   mail:
     enabled: ${MAIL_ENABLED:false}

@@ -80,6 +80,12 @@ public class LoginAttemptService {
                 properties.passwordResetWindowMinutes(), properties.passwordResetBlockMinutes());
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void acquireCartPermit(String origin) {
+        acquirePermit(key("cart-origin", origin), properties.maxCartRequests(), properties.cartWindowMinutes(),
+                properties.cartBlockMinutes(), "CART_RATE_LIMITED", "Too many cart requests; try again later");
+    }
+
     private void acquirePermit(String identifier, int maximum, long windowMinutes, long blockMinutes,
             String code, String message) {
         Instant now = clock.instant();

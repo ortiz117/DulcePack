@@ -19,5 +19,8 @@ public record SecurityProperties(
         int maxOriginPasswordResetRequests,
         long passwordResetWindowMinutes,
         long passwordResetBlockMinutes,
+        int maxCartRequests,
+        long cartWindowMinutes,
+        long cartBlockMinutes,
         boolean trustForwardedFor) {
 }

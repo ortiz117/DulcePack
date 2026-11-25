@@ -122,7 +122,8 @@ public class CartService {
     }
 
     private void ensureCapacity(String slug, int available, int current, int delta) {
-        int reserved = items.reservedQuantity(slug, clock.instant()) - current;
+        Instant cutoff = clock.instant().minus(Duration.ofMinutes(properties.reservationMinutes()));
+        int reserved = items.reservedQuantity(slug, clock.instant(), cutoff) - current;
         if (reserved + current + delta > available) {
             throw new ApiException(HttpStatus.CONFLICT, "INSUFFICIENT_STOCK",
                     "Requested quantity exceeds available stock");

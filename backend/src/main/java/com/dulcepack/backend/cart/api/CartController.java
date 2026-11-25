@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dulcepack.backend.cart.CartCookieService;
 import com.dulcepack.backend.cart.CartService;
 import com.dulcepack.backend.cart.CartService.CartResult;
+import com.dulcepack.backend.identity.service.LoginAttemptService;
+import com.dulcepack.backend.security.ClientOriginResolver;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -24,10 +27,15 @@ import jakarta.validation.Valid;
 public class CartController {
     private final CartService cart;
     private final CartCookieService cookies;
+    private final LoginAttemptService limits;
+    private final ClientOriginResolver origins;
 
-    public CartController(CartService cart, CartCookieService cookies) {
+    public CartController(CartService cart, CartCookieService cookies, LoginAttemptService limits,
+            ClientOriginResolver origins) {
         this.cart = cart;
         this.cookies = cookies;
+        this.limits = limits;
+        this.origins = origins;
     }
 
     @GetMapping
@@ -38,7 +46,8 @@ public class CartController {
     @PostMapping("/items")
     ResponseEntity<CartResponse> add(@Valid @RequestBody AddCartItemRequest request,
             @CookieValue(name = CartCookieService.CART_COOKIE, required = false) String token,
-            HttpServletResponse response) {
+            HttpServletResponse response, HttpServletRequest httpRequest) {
+        limits.acquireCartPermit(origins.resolve(httpRequest));
         return respond(cart.addItem(token, request.productSlug(), request.quantity()), response);
     }
 
