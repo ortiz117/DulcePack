@@ -47,7 +47,7 @@ public class SecurityConfig {
                             response.getWriter().write("{\"code\":\"FORBIDDEN\",\"message\":\"Access is denied\"}");
                         }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/catalog/**", "/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/users/**").authenticated()
                         .anyRequest().denyAll())
