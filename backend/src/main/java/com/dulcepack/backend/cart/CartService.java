@@ -65,7 +65,8 @@ public class CartService {
         Optional<CartItemEntity> existing = items.findByCartIdAndProductSlugForUpdate(
                 resolved.cart().getId(), product.getSlug());
         int current = existing.map(CartItemEntity::getQuantity).orElse(0);
-        ensureCapacity(product.getSlug(), product.getInventory().getAvailable(), current, quantity);
+        ensureCapacity(resolved.cart().getId(), product.getSlug(), product.getInventory().getAvailable(),
+                current + quantity);
         if (existing.isPresent()) {
             existing.get().increase(quantity, now);
         } else {
@@ -85,8 +86,7 @@ public class CartService {
         CartItemEntity item = items.findByCartIdAndProductSlugForUpdate(cart.getId(), product.getSlug())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "CART_ITEM_NOT_FOUND",
                         "Product is not in the cart"));
-        ensureCapacity(product.getSlug(), product.getInventory().getAvailable(), item.getQuantity(),
-                quantity - item.getQuantity());
+        ensureCapacity(cart.getId(), product.getSlug(), product.getInventory().getAvailable(), quantity);
         item.setQuantity(quantity, clock.instant());
         cart.touch(clock.instant());
         return new CartResult(rawToken, false, toResponse(cart));
@@ -110,21 +110,21 @@ public class CartService {
         PromotionEntity promotion = promotions.findByCodeAndActiveTrue(normalized)
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "INVALID_COUPON",
                         "Coupon is invalid or inactive"));
-        cart.applyCoupon(promotion.getCode(), clock.instant());
+        cart.applyCoupon(promotion.getCode());
         return new CartResult(rawToken, false, toResponse(cart));
     }
 
     @Transactional
     public CartResult clearCoupon(String rawToken) {
         CartEntity cart = requireCart(rawToken);
-        cart.clearCoupon(clock.instant());
+        cart.clearCoupon();
         return new CartResult(rawToken, false, toResponse(cart));
     }
 
-    private void ensureCapacity(String slug, int available, int current, int delta) {
+    private void ensureCapacity(UUID cartId, String slug, int available, int finalQuantity) {
         Instant cutoff = clock.instant().minus(Duration.ofMinutes(properties.reservationMinutes()));
-        int reserved = items.reservedQuantity(slug, clock.instant(), cutoff) - current;
-        if (reserved + current + delta > available) {
+        int reservedByOtherCarts = items.reservedQuantityExcluding(slug, clock.instant(), cutoff, cartId);
+        if (reservedByOtherCarts + finalQuantity > available) {
             throw new ApiException(HttpStatus.CONFLICT, "INSUFFICIENT_STOCK",
                     "Requested quantity exceeds available stock");
         }

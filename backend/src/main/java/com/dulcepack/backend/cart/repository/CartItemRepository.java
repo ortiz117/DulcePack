@@ -28,6 +28,7 @@ public interface CartItemRepository extends JpaRepository<CartItemEntity, UUID> 
 
     @Query("select coalesce(sum(item.quantity), 0) from CartItemEntity item "
             + "where item.product.slug = :slug and item.cart.expiresAt > :now "
-            + "and item.cart.updatedAt > :cutoff")
-    int reservedQuantity(@Param("slug") String slug, @Param("now") Instant now, @Param("cutoff") Instant cutoff);
+            + "and item.cart.updatedAt > :cutoff and item.cart.id <> :cartId")
+    int reservedQuantityExcluding(@Param("slug") String slug, @Param("now") Instant now,
+            @Param("cutoff") Instant cutoff, @Param("cartId") UUID cartId);
 }

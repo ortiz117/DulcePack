@@ -55,26 +55,32 @@ public class CartController {
     ResponseEntity<CartResponse> update(@PathVariable String productSlug,
             @Valid @RequestBody UpdateCartItemRequest request,
             @CookieValue(name = CartCookieService.CART_COOKIE, required = false) String token,
-            HttpServletResponse response) {
+            HttpServletResponse response, HttpServletRequest httpRequest) {
+        limits.acquireCartPermit(origins.resolve(httpRequest));
         return respond(cart.updateQuantity(token, productSlug, request.quantity()), response, HttpStatus.OK);
     }
 
     @DeleteMapping("/items/{productSlug}")
     ResponseEntity<CartResponse> remove(@PathVariable String productSlug,
             @CookieValue(name = CartCookieService.CART_COOKIE, required = false) String token,
-            HttpServletResponse response) {
+            HttpServletResponse response, HttpServletRequest httpRequest) {
+        limits.acquireCartPermit(origins.resolve(httpRequest));
         return respond(cart.removeItem(token, productSlug), response, HttpStatus.OK);
     }
 
     @PostMapping("/coupon")
     ResponseEntity<CartResponse> applyCoupon(@Valid @RequestBody CouponRequest request,
-            @CookieValue(name = CartCookieService.CART_COOKIE, required = false) String token) {
+            @CookieValue(name = CartCookieService.CART_COOKIE, required = false) String token,
+            HttpServletRequest httpRequest) {
+        limits.acquireCartPermit(origins.resolve(httpRequest));
         return ResponseEntity.ok(cart.applyCoupon(token, request.code()).cart());
     }
 
     @DeleteMapping("/coupon")
     ResponseEntity<CartResponse> clearCoupon(
-            @CookieValue(name = CartCookieService.CART_COOKIE, required = false) String token) {
+            @CookieValue(name = CartCookieService.CART_COOKIE, required = false) String token,
+            HttpServletRequest httpRequest) {
+        limits.acquireCartPermit(origins.resolve(httpRequest));
         return ResponseEntity.ok(cart.clearCoupon(token).cart());
     }
 

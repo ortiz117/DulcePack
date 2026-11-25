@@ -63,14 +63,12 @@ public class CartEntity {
 
     public Instant getExpiresAt() { return expiresAt; }
 
-    public void applyCoupon(String code, Instant now) {
+    public void applyCoupon(String code) {
         this.couponCode = code;
-        this.updatedAt = now;
     }
 
-    public void clearCoupon(Instant now) {
+    public void clearCoupon() {
         this.couponCode = null;
-        this.updatedAt = now;
     }
 
     public void touch(Instant now) {

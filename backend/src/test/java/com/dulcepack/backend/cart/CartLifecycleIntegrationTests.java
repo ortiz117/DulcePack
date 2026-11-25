@@ -2,6 +2,7 @@ package com.dulcepack.backend.cart;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -111,6 +112,56 @@ class CartLifecycleIntegrationTests {
         mockMvc.perform(get("/api/cart").cookie(first))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.itemCount").value(0));
+    }
+
+    @Test
+    void reAddingToAnExpiredReservationCannotOverassignStock() throws Exception {
+        insertProduct("box-fiesta", "Box Fiesta", new BigDecimal("100.00"), 5);
+        Cookie stale = add("box-fiesta", 2).getResponse().getCookie("DP_CART");
+        jdbcTemplate.update("update carts set updated_at = ? where token_hash = ?",
+                Timestamp.from(Instant.now().minus(31, ChronoUnit.MINUTES)), hash(stale.getValue()));
+
+        Cookie active = add("box-fiesta", 4).getResponse().getCookie("DP_CART");
+        mockMvc.perform(get("/api/cart").cookie(active))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.itemCount").value(4));
+
+        mockMvc.perform(post("/api/cart/items")
+                        .cookie(stale)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"productSlug":"box-fiesta","quantity":1}
+                                """)
+                        .with(csrf()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("INSUFFICIENT_STOCK"));
+
+        mockMvc.perform(get("/api/cart").cookie(stale))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.itemCount").value(2));
+    }
+
+    @Test
+    void couponChangesDoNotRenewTheReservationWindow() throws Exception {
+        insertProduct("box-fiesta", "Box Fiesta", new BigDecimal("100.00"), 1);
+        Cookie stale = add("box-fiesta", 1).getResponse().getCookie("DP_CART");
+        jdbcTemplate.update("update carts set updated_at = ? where token_hash = ?",
+                Timestamp.from(Instant.now().minus(31, ChronoUnit.MINUTES)), hash(stale.getValue()));
+
+        mockMvc.perform(post("/api/cart/coupon")
+                        .cookie(stale)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"DULCE50\"}")
+                        .with(csrf()))
+                .andExpect(status().isOk());
+        mockMvc.perform(delete("/api/cart/coupon").cookie(stale).with(csrf()))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/cart/items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"productSlug\":\"box-fiesta\",\"quantity\":1}")
+                        .with(csrf()))
+                .andExpect(status().isCreated());
     }
 
     @Test
