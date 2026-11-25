@@ -31,6 +31,12 @@ export ADMIN_DISPLAY_NAME='Administrador'
 
 La contraseña se almacena con BCrypt y las variables pueden retirarse después de crear la cuenta.
 
+Los límites de login, registro y recuperación se configuran con las variables
+`MAX_LOGIN_FAILURES`, `MAX_ORIGIN_LOGIN_FAILURES`, `MAX_REGISTRATION_REQUESTS`,
+`MAX_PASSWORD_RESET_REQUESTS` y `MAX_ORIGIN_PASSWORD_RESET_REQUESTS`. El encabezado
+`X-Forwarded-For` solo se utiliza cuando `TRUST_FORWARDED_FOR=true`; actívalo únicamente
+detrás de un proxy confiable que elimine encabezados enviados directamente por clientes.
+
 ## Recuperación de contraseña por correo
 
 ```bash
