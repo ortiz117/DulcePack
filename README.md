@@ -132,6 +132,8 @@ npm test
 
 Playwright prueba proyectos de escritorio y móvil. Las suites incluyen navegación, validaciones, rutas protegidas, comportamiento responsive, ausencia de overflow horizontal y comprobaciones automáticas WCAG A/AA con axe-core.
 
+Fallo preexistente documentado en `tests/home.spec.ts` (ajeno al módulo de carrito y promociones): tres casos esperaban encontrar `#categorias` con el botón «Gomitas» y agotan el tiempo de espera de 30 s porque esa categoría ya no se muestra en el estado actual de `src/data/home.ts`. Se comprobó que los tres fallos se reproducen sin los cambios de carrito. El resto de la suite pasa (117 aprobadas, 4 omitidas). Su corrección requiere actualizar esos casos de inicio y no forma parte de este módulo.
+
 Si Chromium no está instalado para Playwright:
 
 ```bash
