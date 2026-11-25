@@ -99,7 +99,17 @@ El carrito es anónimo y se identifica con la cookie HttpOnly `DP_CART`; un mism
 - `DELETE /api/cart/items/{productSlug}` — elimina el artículo.
 - `POST /api/cart/coupon` — aplica `{code}`; `DELETE /api/cart/coupon` — lo retira.
 
-Reglas derivadas del frontend: envío de 79 MXN si hay artículos (0 si está vacío), cupón `DULCE50` con 50 MXN de descuento y total `max(0, subtotal + envío - descuento)`. Se configuran con `CART_SHIPPING_FEE` y `CART_DEFAULT_COUPON`. Las cantidades se validan contra el inventario y las reservas vigentes de todos los carritos, con bloqueo pesimista para evitar sobreasignación concurrente. Los carritos caducan a los 7 días de inactividad: sus reservas dejan de contar de inmediato y un barrido horario los elimina. Las mutaciones requieren CSRF. El adaptador TypeScript está en `frontend/src/lib/api/cart.ts`; la creación de pedidos pertenece al módulo de pedidos.
+Reglas derivadas del frontend: envío de 79 MXN si hay artículos (0 si está vacío), cupón `DULCE50` con 50 MXN de descuento y total `max(0, subtotal + envío - descuento)`. Se configuran con `CART_SHIPPING_FEE` y `CART_DEFAULT_COUPON`.
+
+### Persistencia e identidad
+
+El carrito pertenece a la cookie, no a la sesión: iniciar sesión con artículos previamente agregados los conserva, cerrar sesión no los elimina y otra sesión legítimamente autenticada no puede leerlos. No se vincula al usuario porque el frontend no ejecuta ninguna fusión de carritos ni expone una acción para reclamar el carrito anónimo; hacerlo sin esa señal mezclaría artículos de distintos dispositivos. La sesión y el carrito son cookies independientes, ambas HttpOnly y `SameSite=Lax`.
+
+### Inventario y reservas
+
+Agregar artículos **no descuenta** `product_inventory.available`; solo lectura con bloqueo pesimista. La disponibilidad pública se calcula como `available - sum(cantidades de carritos con reserva vigente)`, donde una reserva está vigente si el carrito no ha caducado (7 días) **y** tuvo actividad en los últimos 30 minutos (`CART_RESERVATION_MINUTES`). Caducidad del carrito (7 días) y duración de la reserva (30 min) son conceptos distintos: un carrito olvidado conserva sus artículos para el usuario, pero deja de bloquear existencias de terceros. El barrido horario elimina los carritos caducados. `POST /api/cart/items` está limitado por origen (`MAX_CART_REQUESTS` por hora) para impedir la creación masiva de carritos. La futura creación de pedidos deberá convertir la reserva vigente en compromiso real dentro de la misma transacción que descuenta el inventario; este módulo no crea pedidos.
+
+Las mutaciones requieren CSRF. El adaptador TypeScript está en `frontend/src/lib/api/cart.ts`; la creación de pedidos pertenece al módulo de pedidos.
 
 ## Pruebas y compilación
 
