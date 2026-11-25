@@ -163,6 +163,24 @@ class AuthApiIntegrationTests {
                 .andExpect(jsonPath("$.code").value("LOGIN_RATE_LIMITED"));
     }
 
+    @Test
+    void accountFailuresDoNotBlockAValidLoginFromAnotherOrigin() throws Exception {
+        register("lockout-resistant@example.com");
+        for (int attempt = 0; attempt < 5; attempt++) {
+            mockMvc.perform(post("/api/auth/login")
+                            .header("X-Forwarded-For", "203.0.113.40")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"email\":\"lockout-resistant@example.com\",\"password\":\"Wrong!Password1\"}"))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        mockMvc.perform(post("/api/auth/login")
+                        .header("X-Forwarded-For", "198.51.100.10")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"lockout-resistant@example.com\",\"password\":\"Str0ng!Password\"}"))
+                .andExpect(status().isOk());
+    }
+
     private MvcResult login(String email) throws Exception {
         return mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

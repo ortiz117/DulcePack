@@ -16,6 +16,16 @@ public interface PasswordResetTokenRepository extends JpaRepository<PasswordRese
     @EntityGraph(attributePaths = "user")
     Optional<PasswordResetTokenEntity> findByTokenHashAndUsedAtIsNull(String tokenHash);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            update PasswordResetTokenEntity token
+               set token.usedAt = :now
+             where token.tokenHash = :tokenHash
+               and token.usedAt is null
+               and token.expiresAt > :now
+            """)
+    int consumeIfValid(@Param("tokenHash") String tokenHash, @Param("now") Instant now);
+
     @Modifying
     @Query("update PasswordResetTokenEntity t set t.usedAt = :now where t.user.id = :userId and t.usedAt is null")
     int invalidateAllByUserId(@Param("userId") UUID userId, @Param("now") Instant now);

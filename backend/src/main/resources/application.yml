@@ -21,8 +21,17 @@ app:
     refresh-token-days: ${REFRESH_TOKEN_DAYS:30}
     password-reset-minutes: ${PASSWORD_RESET_MINUTES:30}
     max-login-failures: ${MAX_LOGIN_FAILURES:5}
+    max-origin-login-failures: ${MAX_ORIGIN_LOGIN_FAILURES:20}
     login-window-minutes: ${LOGIN_WINDOW_MINUTES:15}
     login-block-minutes: ${LOGIN_BLOCK_MINUTES:15}
+    max-registration-requests: ${MAX_REGISTRATION_REQUESTS:10}
+    registration-window-minutes: ${REGISTRATION_WINDOW_MINUTES:60}
+    registration-block-minutes: ${REGISTRATION_BLOCK_MINUTES:60}
+    max-password-reset-requests: ${MAX_PASSWORD_RESET_REQUESTS:3}
+    max-origin-password-reset-requests: ${MAX_ORIGIN_PASSWORD_RESET_REQUESTS:20}
+    password-reset-window-minutes: ${PASSWORD_RESET_WINDOW_MINUTES:60}
+    password-reset-block-minutes: ${PASSWORD_RESET_BLOCK_MINUTES:60}
+    trust-forwarded-for: ${TRUST_FORWARDED_FOR:false}
   mail:
     enabled: ${MAIL_ENABLED:false}
     from: ${MAIL_FROM:no-reply@dulcepack.local}

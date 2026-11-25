@@ -13,5 +13,7 @@ spring:
 app:
   security:
     secure-cookies: false
+    trust-forwarded-for: true
+    max-registration-requests: 100
   mail:
     enabled: false

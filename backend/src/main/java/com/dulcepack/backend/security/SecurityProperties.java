@@ -9,6 +9,15 @@ public record SecurityProperties(
         long refreshTokenDays,
         long passwordResetMinutes,
         int maxLoginFailures,
+        int maxOriginLoginFailures,
         long loginWindowMinutes,
-        long loginBlockMinutes) {
+        long loginBlockMinutes,
+        int maxRegistrationRequests,
+        long registrationWindowMinutes,
+        long registrationBlockMinutes,
+        int maxPasswordResetRequests,
+        int maxOriginPasswordResetRequests,
+        long passwordResetWindowMinutes,
+        long passwordResetBlockMinutes,
+        boolean trustForwardedFor) {
 }

@@ -11,6 +11,7 @@ import com.dulcepack.backend.identity.service.AuthService;
 import com.dulcepack.backend.security.SessionCookieService;
 import com.dulcepack.backend.security.SessionAuthenticationFilter;
 import com.dulcepack.backend.security.SessionService;
+import com.dulcepack.backend.security.ClientOriginResolver;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,23 +24,26 @@ public class AuthController {
     private final AuthService authService;
     private final SessionCookieService cookies;
     private final SessionService sessions;
+    private final ClientOriginResolver origins;
 
-    public AuthController(AuthService authService, SessionCookieService cookies, SessionService sessions) {
+    public AuthController(AuthService authService, SessionCookieService cookies, SessionService sessions,
+            ClientOriginResolver origins) {
         this.authService = authService;
         this.cookies = cookies;
         this.sessions = sessions;
+        this.origins = origins;
     }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
-        return new AuthResponse(UserResponse.from(authService.register(request)));
+    public AuthResponse register(@Valid @RequestBody RegisterRequest request, HttpServletRequest servletRequest) {
+        return new AuthResponse(UserResponse.from(authService.register(request, origins.resolve(servletRequest))));
     }
 
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest servletRequest,
             HttpServletResponse servletResponse) {
-        var result = authService.login(request, clientIp(servletRequest), servletRequest.getHeader("User-Agent"));
+        var result = authService.login(request, origins.resolve(servletRequest), servletRequest.getHeader("User-Agent"));
         cookies.write(servletResponse, result.tokens());
         return new AuthResponse(UserResponse.from(result.user()));
     }
@@ -61,8 +65,8 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
-        authService.forgotPassword(request);
+    public void forgotPassword(@Valid @RequestBody ForgotPasswordRequest request, HttpServletRequest servletRequest) {
+        authService.forgotPassword(request, origins.resolve(servletRequest));
     }
 
     @PostMapping("/reset-password")
@@ -71,10 +75,4 @@ public class AuthController {
         authService.resetPassword(request);
     }
 
-    private static String clientIp(HttpServletRequest request) {
-        String forwarded = request.getHeader("X-Forwarded-For");
-        return forwarded == null || forwarded.isBlank()
-                ? request.getRemoteAddr()
-                : forwarded.split(",", 2)[0].strip();
-    }
 }

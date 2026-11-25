@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.time.Clock;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.dulcepack.backend.identity.api.ForgotPasswordRequest;
+import com.dulcepack.backend.identity.domain.UserEntity;
+import com.dulcepack.backend.identity.repository.UserRepository;
+import com.dulcepack.backend.identity.service.AuthService;
 import com.dulcepack.backend.identity.service.PasswordResetNotifier;
 
 @SpringBootTest
@@ -31,6 +37,15 @@ class PasswordResetIntegrationTests {
 
     @Autowired
     private CapturingNotifier notifier;
+
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
+    private UserRepository users;
+
+    @Autowired
+    private Clock clock;
 
     @Test
     void forgotAndResetPasswordChangesCredentialsAndInvalidatesToken() throws Exception {
@@ -71,6 +86,17 @@ class PasswordResetIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"unknown@example.com\"}"))
                 .andExpect(status().isAccepted());
+    }
+
+    @Test
+    @Transactional
+    void rolledBackPasswordResetRequestDoesNotSendNotification() {
+        users.save(UserEntity.client("rollback-reset@example.com", "Cliente", "hash", clock.instant()));
+        notifier.token.set(null);
+
+        authService.forgotPassword(new ForgotPasswordRequest("rollback-reset@example.com"), "rollback-origin");
+
+        org.junit.jupiter.api.Assertions.assertNull(notifier.token.get());
     }
 
     private void register(String email) throws Exception {
