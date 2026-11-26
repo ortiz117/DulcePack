@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 test('Ver todo elimina el filtro de categoría en escritorio', async ({ page, isMobile }) => {
   test.skip(isMobile, 'El diseño móvil usa el botón Mostrar todos los favoritos.');
   await page.goto('/');
-  await page.locator('#categorias').getByRole('button', { name: /Gomitas/ }).click();
-  await expect(page.getByRole('article')).toHaveCount(1);
+  await page.locator('#categorias').getByRole('button', { name: /Dulces/ }).click();
+  await expect(page.getByRole('article')).toHaveCount(2);
   await page.getByRole('link', { name: 'Ver todo', exact: false }).click();
   await expect(page.getByRole('article')).toHaveCount(4);
 });
@@ -33,10 +33,11 @@ test('la búsqueda local admite acentos y muestra un estado vacío recuperable',
 
 test('las categorías filtran los favoritos sin abrir una segunda vista', async ({ page }) => {
   await page.goto('/');
-  await page.locator('#categorias').getByRole('button', { name: /Gomitas/ }).click();
-  await expect(page.getByRole('article')).toHaveCount(1);
+  await page.locator('#categorias').getByRole('button', { name: /Dulces/ }).click();
+  await expect(page.getByRole('article')).toHaveCount(2);
+  await expect(page.getByRole('heading', { name: 'Box Picosita', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Mix Gomitas', exact: true })).toBeVisible();
-  await expect(page.locator('#categorias').getByRole('button', { name: /Gomitas/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#categorias').getByRole('button', { name: /Dulces/ })).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'Mostrar todos los favoritos' }).click();
   await expect(page.getByRole('article')).toHaveCount(4);
   expect(new URL(page.url()).pathname).toBe('/');

@@ -1,8 +1,58 @@
 spring:
   application:
     name: dulcepack-backend
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
   jpa:
     open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${MAIL_SMTP_AUTH:false}
+      mail.smtp.starttls.enable: ${MAIL_STARTTLS:false}
+
+app:
+  cart:
+    shipping-fee: ${CART_SHIPPING_FEE:79.00}
+    default-coupon: ${CART_DEFAULT_COUPON:DULCE50}
+    reservation-minutes: ${CART_RESERVATION_MINUTES:30}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+  security:
+    secure-cookies: ${SECURE_COOKIES:true}
+    access-token-minutes: ${ACCESS_TOKEN_MINUTES:15}
+    refresh-token-days: ${REFRESH_TOKEN_DAYS:30}
+    password-reset-minutes: ${PASSWORD_RESET_MINUTES:30}
+    max-login-failures: ${MAX_LOGIN_FAILURES:5}
+    max-origin-login-failures: ${MAX_ORIGIN_LOGIN_FAILURES:20}
+    login-window-minutes: ${LOGIN_WINDOW_MINUTES:15}
+    login-block-minutes: ${LOGIN_BLOCK_MINUTES:15}
+    max-registration-requests: ${MAX_REGISTRATION_REQUESTS:10}
+    registration-window-minutes: ${REGISTRATION_WINDOW_MINUTES:60}
+    registration-block-minutes: ${REGISTRATION_BLOCK_MINUTES:60}
+    max-password-reset-requests: ${MAX_PASSWORD_RESET_REQUESTS:3}
+    max-origin-password-reset-requests: ${MAX_ORIGIN_PASSWORD_RESET_REQUESTS:20}
+    password-reset-window-minutes: ${PASSWORD_RESET_WINDOW_MINUTES:60}
+    password-reset-block-minutes: ${PASSWORD_RESET_BLOCK_MINUTES:60}
+    max-cart-requests: ${MAX_CART_REQUESTS:300}
+    cart-window-minutes: ${CART_WINDOW_MINUTES:60}
+    cart-block-minutes: ${CART_BLOCK_MINUTES:60}
+    trust-forwarded-for: ${TRUST_FORWARDED_FOR:false}
+  mail:
+    enabled: ${MAIL_ENABLED:false}
+    from: ${MAIL_FROM:no-reply@dulcepack.local}
+    reset-base-url: ${PASSWORD_RESET_BASE_URL:http://localhost:5173/reset-password}
+  bootstrap-admin:
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
+    display-name: ${ADMIN_DISPLAY_NAME:Administrador}
 
 management:
   endpoints:

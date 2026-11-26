@@ -3,15 +3,15 @@
   import Footer from '../components/Footer.svelte';
   import type { CartItem } from '../types/product';
 
-  let { cart, cartCount, navigate, updateCart, removeFromCart }: {
+  let { cart, cartCount, navigate, updateCart, removeFromCart, coupon = $bindable('DULCE50') }: {
     cart: CartItem[];
     cartCount: number;
     navigate: (path: string) => void;
     updateCart: (productId: string, quantity: number) => void;
     removeFromCart: (productId: string) => void;
+    coupon: string;
   } = $props();
 
-  let coupon = $state('DULCE50');
   let notice = $state('');
   let subtotal = $derived(cart.reduce((total, item) => total + item.product.price * item.quantity, 0));
   let shipping = $derived(cart.length ? 79 : 0);

@@ -1,4 +1,4 @@
-export type CategoryId = 'picositos' | 'gomitas' | 'chocolates' | 'botanas';
+export type CategoryId = 'dulces' | 'botanas' | 'paquetes';
 
 export interface Product {
   id: string;
@@ -8,13 +8,17 @@ export interface Product {
   price: number;
   currency: 'MXN';
   category: CategoryId;
-  kind?: 'dulces' | 'botanas' | 'paquetes';
+  kind?: CategoryId;
   flavor?: 'dulce' | 'acido' | 'picante';
   image: string;
+  available?: number;
+  stockStatus?: 'AVAILABLE' | 'LOW' | 'OUT_OF_STOCK';
+  tags?: string[];
 }
 
 export interface Category {
   id: CategoryId;
+  slug: CategoryId;
   name: string;
   shortName: string;
 }
