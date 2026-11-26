@@ -38,7 +38,7 @@ import com.dulcepack.backend.shared.error.ApiException;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 class CartPostgreSqlIntegrationTests {
 
     @Container
